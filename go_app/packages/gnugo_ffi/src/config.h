@@ -1,0 +1,42 @@
+#ifndef GNUGO_FFI_CONFIG_H
+#define GNUGO_FFI_CONFIG_H
+
+#define VERSION "3.8"
+#define DEFAULT_LEVEL 10
+#define DEFAULT_MEMORY -1
+#define CHINESE_RULES 0
+#define RESIGNATION_ALLOWED 1
+#define COSMIC_GNUGO 0
+#define OWL_NODE_LIMIT 1000
+#define SEMEAI_NODE_LIMIT 500
+#define EXPERIMENTAL_OWL_EXT 0
+#define LARGE_SCALE 0
+#define ORACLE 0
+#define OWL_THREATS 0
+#define USE_BREAK_IN 1
+#define EXPERIMENTAL_CONNECTIONS 1
+#define ALTERNATE_CONNECTIONS 1
+#define GRID_OPT 1
+#if defined(_WIN32)
+#define SIZEOF_LONG 4
+#else
+#define SIZEOF_LONG __SIZEOF_LONG__
+#endif
+
+#if defined(_WIN32)
+#define HAVE_CRTDBG_H 1
+#define HAVE_WINSOCK_IO_H 1
+#define HAVE_SYS_TYPES_H 1
+#define HAVE__VSNPRINTF 1
+#else
+#define HAVE_SYS_TYPES_H 1
+#define HAVE_SYS_TIMES_H 1
+#define HAVE_SYS_TIME_H 1
+#define TIME_WITH_SYS_TIME 1
+#define HAVE_UNISTD_H 1
+#define HAVE_TIMES 1
+#define HAVE_GETTIMEOFDAY 1
+#define HAVE_VSNPRINTF 1
+#endif
+
+#endif

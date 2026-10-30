@@ -1,0 +1,56 @@
+# CMake-generated files and build directories
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+/config.h
+Makefile
+**/Debug/
+**/Release/
+**/RelWithDebInfo/
+**/MinSizeRel/
+*.dir/
+*.vcxproj
+*.vcxproj.filters
+*.tlog/
+*.lastbuildstate
+*.obj
+*.lib
+*.pdb
+*.ilk
+*.exp
+*.recipe
+*.vcxproj.user
+*.suo
+*.user
+/ALL_BUILD.dir/
+/INSTALL.dir/
+/ZERO_CHECK.dir/
+/ALL_BUILD.vcxproj*
+/INSTALL.vcxproj*
+/ZERO_CHECK.vcxproj*
+/GNUGo.sln
+/GNUGo.slnx
+/x64/
+
+# Flutter/Dart generated files
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+**/Flutter/ephemeral/
+
+# Local Android configuration and signing material
+.gradle/
+.cxx/
+local.properties
+key.properties
+*.jks
+*.keystore
+
+# Local tools, logs, and editor files
+*.log
+.vs/
+.idea/
+*.iml
+.DS_Store

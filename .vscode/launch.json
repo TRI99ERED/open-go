@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "OpenGo: Debug",
+      "request": "launch",
+      "type": "dart",
+      "program": "${workspaceFolder}/go_app/lib/main.dart",
+      "cwd": "${workspaceFolder}/go_app",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "OpenGo: Profile",
+      "request": "launch",
+      "type": "dart",
+      "program": "${workspaceFolder}/go_app/lib/main.dart",
+      "cwd": "${workspaceFolder}/go_app",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "OpenGo: Release",
+      "request": "launch",
+      "type": "dart",
+      "program": "${workspaceFolder}/go_app/lib/main.dart",
+      "cwd": "${workspaceFolder}/go_app",
+      "flutterMode": "release"
+    }
+  ]
+}
