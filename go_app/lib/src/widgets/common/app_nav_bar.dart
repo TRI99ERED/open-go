@@ -1,0 +1,127 @@
+﻿import 'package:flutter/material.dart';
+import 'package:opengo/src/features/themes/app_theme.dart';
+import 'package:opengo/src/features/themes/styles.dart';
+
+class AppNavBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final String? leftText;
+  final IconData? leftIcon;
+  final Widget? leftImage;
+  final String? rightText;
+  final IconData? rightIcon;
+  final Widget? rightImage;
+  final VoidCallback? onPressedLeft;
+  final VoidCallback? onPressedRight;
+
+  const AppNavBar({
+    super.key,
+    required this.title,
+    this.leftText,
+    this.leftIcon,
+    this.rightText,
+    this.rightIcon,
+    this.leftImage,
+    this.rightImage,
+    this.onPressedLeft,
+    this.onPressedRight,
+  });
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Row(
+        children: [
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: (leftText != null || leftIcon != null || leftImage != null)
+                  ? _AppControl(
+                      text: leftText,
+                      icon: leftIcon,
+                      image: leftImage,
+                      onPressed: onPressedLeft,
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: h4Size,
+                  fontWeight: h4Weight,
+                  color: Theme.of(context)
+                      .extension<AppTheme>()
+                      ?.foregroundStrongestColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child:
+                  (rightText != null || rightIcon != null || rightImage != null)
+                  ? _AppControl(
+                      text: rightText,
+                      icon: rightIcon,
+                      image: rightImage,
+                      onPressed: onPressedRight,
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AppControl extends StatelessWidget {
+  final String? _text;
+  final IconData? _icon;
+  final Widget? _image;
+  final VoidCallback? _onPressed;
+
+  const _AppControl({
+    String? text,
+    IconData? icon,
+    Widget? image,
+    required this._onPressed,
+  }) : _icon = icon,
+       _text = text,
+       _image = image,
+       assert(
+         text != null || icon != null || image != null,
+         'Either text, icon, or image must be provided',
+       );
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: _onPressed,
+      style: IconButton.styleFrom(
+        foregroundColor: Theme.of(context)
+            .extension<AppTheme>()
+            ?.highlightDarkestColor,
+      ),
+      icon: _text != null
+          ? Text(
+              _text,
+              style: TextStyle(
+                color: Theme.of(context)
+                    .extension<AppTheme>()
+                    ?.highlightDarkestColor,
+                fontSize: aMSize,
+                fontWeight: aMWeight,
+              ),
+            )
+          : _image ?? Icon(_icon ?? Icons.arrow_back_ios_new),
+    );
+  }
+}

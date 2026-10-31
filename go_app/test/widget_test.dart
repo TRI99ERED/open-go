@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gnugo_ffi/gnugo_ffi.dart';
 import 'package:opengo/main.dart';
-import 'package:opengo/src/screens/sgf_review_screen.dart';
+import 'package:opengo/src/features/screens/game_screen.dart';
+import 'package:opengo/src/features/screens/sgf_review_screen.dart';
 
 void main() {
   testWidgets('home screen opens SGF review', (tester) async {
-    await tester.pumpWidget(const OpenGoApp());
+    await tester.pumpWidget(const App());
 
     expect(find.text('Play Go your way'), findsOneWidget);
     expect(find.text('Solve Tsumego'), findsOneWidget);
@@ -32,7 +33,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GoGamePage(
+        home: GameScreen(
           engineStart: (boardSize, seed) async {},
           sendCommand: (command) async {
             commands.add(command);
@@ -71,7 +72,7 @@ void main() {
   testWidgets('shows GNU Go errors instead of hiding them', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: GoGamePage(
+        home: GameScreen(
           engineStart: (boardSize, seed) async {},
           sendCommand: (command) async =>
               throw const GnuGoException('illegal move'),

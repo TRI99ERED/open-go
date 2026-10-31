@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opengo/src/game/go_position.dart';
-import 'package:opengo/src/game/sgf.dart';
-import 'package:opengo/src/screens/tsumego_screen.dart';
+import 'package:opengo/src/core/game/go_position.dart';
+import 'package:opengo/src/core/game/sgf.dart';
+import 'package:opengo/src/features/app/app_controller/app_controller.dart';
+import 'package:opengo/src/features/app/app_scope.dart';
+import 'package:opengo/src/features/screens/tsumego_screen.dart';
+import 'package:opengo/src/widgets/common/app_dropdown.dart';
 import 'package:opengo/src/widgets/go_board.dart';
 
 void main() {
@@ -20,17 +23,36 @@ void main() {
     }
     expect(collection.games.first.firstValue('SO'), 'https://gogameguru.com/');
 
-    await tester.pumpWidget(const MaterialApp(home: TsumegoScreen()));
+    final appController = AppController();
+    final themeMode = ValueNotifier(ThemeMode.system);
+    addTearDown(appController.dispose);
+    addTearDown(themeMode.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AppScope(
+          appController: appController,
+          themeMode: themeMode,
+          child: const TsumegoScreen(index: 5),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    final selector = tester.widget<DropdownButton<int>>(
-      find.byType(DropdownButton<int>),
-    );
+    final selector = tester.widget<AppDropdown>(find.byType(AppDropdown));
     expect(selector.items, hasLength(33));
-    expect((selector.items![0].child as Text).data, 'GoGameGuru Easy 01');
-    expect((selector.items![32].child as Text).data, 'GoGameGuru Hard 11');
+    expect(selector.items[0].label, 'GoGameGuru Easy 01');
+    expect(selector.items[32].label, 'GoGameGuru Hard 11');
+    expect(selector.selectedIndex, 5);
+    expect(selector.text, collection.games[5].firstValue('GN'));
 
-    selector.onChanged!(0);
+    final selectedBoard = tester.widget<GoBoard>(find.byType(GoBoard));
+    expect(
+      selectedBoard.stones,
+      orderedEquals(positionAtPath(collection.games[5], []).stones),
+    );
+
+    selector.onSelected!(('0', 0));
     await tester.pumpAndSettle();
     _playMove(tester, 'aa');
     await tester.pumpAndSettle();

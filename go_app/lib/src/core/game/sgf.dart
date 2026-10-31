@@ -1,10 +1,10 @@
 class SgfNode {
+  final Map<String, List<String>> properties;
+  final List<SgfNode> children;
+
   SgfNode({Map<String, List<String>>? properties, List<SgfNode>? children})
     : properties = properties ?? {},
       children = children ?? [];
-
-  final Map<String, List<String>> properties;
-  final List<SgfNode> children;
 
   String? firstValue(String property) => properties[property]?.firstOrNull;
   List<String> values(String property) => properties[property] ?? const [];

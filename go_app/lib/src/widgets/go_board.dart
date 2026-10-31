@@ -2,9 +2,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../game/go_position.dart';
+import '../core/game/go_position.dart';
 
 class GoBoard extends StatelessWidget {
+  final int boardSize;
+  final List<int> stones;
+  final int? lastMove;
+  final ValueChanged<int>? onPlay;
+
   const GoBoard({
     required this.boardSize,
     required this.stones,
@@ -12,11 +17,6 @@ class GoBoard extends StatelessWidget {
     this.onPlay,
     super.key,
   });
-
-  final int boardSize;
-  final List<int> stones;
-  final int? lastMove;
-  final ValueChanged<int>? onPlay;
 
   String get _semanticsLabel {
     String describe(int color) {
@@ -38,31 +38,39 @@ class GoBoard extends StatelessWidget {
     label: _semanticsLabel,
     child: LayoutBuilder(
       builder: (context, constraints) {
-        final size = Size(constraints.maxWidth, constraints.maxHeight);
-        return GestureDetector(
-          key: const ValueKey('go-board'),
-          behavior: HitTestBehavior.opaque,
-          onTapDown: onPlay == null
-              ? null
-              : (details) {
-                  final inset = size.width * 0.075;
-                  final spacing = (size.width - inset * 2) / (boardSize - 1);
-                  final column = ((details.localPosition.dx - inset) / spacing)
-                      .round();
-                  final row = ((details.localPosition.dy - inset) / spacing)
-                      .round();
-                  if (row >= 0 &&
-                      row < boardSize &&
-                      column >= 0 &&
-                      column < boardSize) {
-                    onPlay!(row * boardSize + column);
-                  }
-                },
-          child: CustomPaint(
-            painter: _GoBoardPainter(
-              boardSize: boardSize,
-              stones: stones,
-              lastMove: lastMove,
+        final dimension = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : 320.0;
+        final size = Size(dimension, dimension);
+        return SizedBox.square(
+          dimension: dimension,
+          child: GestureDetector(
+            key: const ValueKey('go-board'),
+            behavior: HitTestBehavior.opaque,
+            onTapDown: onPlay == null
+                ? null
+                : (details) {
+                    final inset = size.width * 0.075;
+                    final spacing = (size.width - inset * 2) / (boardSize - 1);
+                    final column = ((details.localPosition.dx - inset) / spacing)
+                        .round();
+                    final row = ((details.localPosition.dy - inset) / spacing)
+                        .round();
+                    if (row >= 0 &&
+                        row < boardSize &&
+                        column >= 0 &&
+                        column < boardSize) {
+                      onPlay!(row * boardSize + column);
+                    }
+                  },
+            child: CustomPaint(
+              painter: _GoBoardPainter(
+                boardSize: boardSize,
+                stones: stones,
+                lastMove: lastMove,
+              ),
             ),
           ),
         );
@@ -72,15 +80,15 @@ class GoBoard extends StatelessWidget {
 }
 
 class _GoBoardPainter extends CustomPainter {
+  final int boardSize;
+  final List<int> stones;
+  final int? lastMove;
+
   const _GoBoardPainter({
     required this.boardSize,
     required this.stones,
     required this.lastMove,
   });
-
-  final int boardSize;
-  final List<int> stones;
-  final int? lastMove;
 
   @override
   void paint(Canvas canvas, Size size) {

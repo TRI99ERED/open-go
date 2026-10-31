@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opengo/src/game/go_position.dart';
-import 'package:opengo/src/game/sgf.dart';
+import 'package:opengo/src/core/game/go_position.dart';
+import 'package:opengo/src/core/game/sgf.dart';
 
 void main() {
   group('SGF collection', () {
