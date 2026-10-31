@@ -11,7 +11,7 @@ import 'package:opengo/src/widgets/common/app_list_title.dart';
 import 'package:opengo/src/widgets/common/app_nav_bar.dart';
 
 class HomeScreen extends StatelessWidget {
-  const new({super.key});
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,18 +31,49 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       drawer: AppDrawer(
-        child: ListView(
-          children: [
-            AppListTitle(title: context.l10n.openGo),
-            AppListItem(
-              title: context.l10n.settings,
-              icon: Icons.settings,
-              onPressed: () {
-                Navigator.of(context).pop();
-                AppNavigator.of(context).push(const SettingsPage());
-              },
-            ),
-          ],
+        child: SafeArea(
+          child: Column(
+            children: [
+              AppListTitle(title: '${context.l10n.openGo} v0.1.0'),
+              SizedBox(height: spacing8),
+              AppListItem(
+                title: context.l10n.play,
+                icon: Icons.sports_esports,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  AppNavigator.of(context).push(GamePage());
+                },
+              ),
+              SizedBox(height: spacing8),
+              AppListItem(
+                title: context.l10n.solve,
+                icon: Icons.extension,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  AppNavigator.of(context).push(const TsumegosPage());
+                },
+              ),
+              SizedBox(height: spacing8),
+              AppListItem(
+                title: context.l10n.review,
+                icon: Icons.menu_book,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  AppNavigator.of(context).push(const ReviewPage());
+                },
+              ),
+              const Spacer(),
+              AppListItem(
+                title: context.l10n.settings,
+                icon: Icons.settings,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  AppNavigator.of(context).push(const SettingsPage());
+                },
+              ),
+              SizedBox(height: spacing8),
+            ],
+          ),
         ),
       ),
       body: SafeArea(

@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// Language option that follows the device's preferred language.
   ///
   /// In en, this message translates to:
-  /// **'System default'**
+  /// **'System'**
   String get languageSystem;
 
   /// English language option, named in its native language.

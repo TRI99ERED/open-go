@@ -44,7 +44,7 @@
   "@language": {
     "description": "Settings section for choosing the app's display language."
   },
-  "languageSystem": "System default",
+  "languageSystem": "System",
   "@languageSystem": {
     "description": "Language option that follows the device's preferred language."
   },

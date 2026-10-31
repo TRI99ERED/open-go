@@ -18,6 +18,7 @@ void main() {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      SystemChrome.setPreferredOrientations([.portraitUp]);
 
       runApp(const App());
     },
@@ -113,7 +114,8 @@ class _AppState extends State<App> {
         return ValueListenableBuilder<Locale?>(
           valueListenable: _locale,
           builder: (context, locale, child) => MaterialApp.router(
-            onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+            onGenerateTitle: (context) =>
+                AppLocalizations.of(context)!.appTitle,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: locale,
