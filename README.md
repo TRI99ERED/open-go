@@ -1,48 +1,51 @@
-                         OpenGo Flutter app
+# OpenGo Flutter app
 
 OpenGo is an offline Go app built with Flutter and powered by the GNU Go
 engine. It supports Windows, Android, and iOS, and works without an internet
 connection.
 
-Features
+## Features
 
-  - Play against GNU Go or use pass-and-play on one device.
-  - Choose a 9x9, 13x13, or 19x19 board, select your color, pass, and undo
-    moves. Games are scored after both players pass.
-  - Practice tsumego with bundled Go Game Guru problems, or import SGF
-    problems.
-  - Review SGF games with move navigation, comments, variations, and playback.
-  - Record games with player names and a game title, then export them as SGF.
+- Play against GNU Go or use pass-and-play on one device.
+- Choose a 9x9, 13x13, or 19x19 board, select your color, pass, and undo moves.
+  Games are scored after both players pass.
+- Practice tsumego with bundled Go Game Guru problems, or import SGF problems.
+- Review SGF games with move navigation, comments, variations, and playback.
+- Record games with player names and a game title, then export them as SGF.
 
-Build and run
+## Build and run
 
-  Install Flutter and the native toolchain for your target platform. From the
-  repository root, run:
+Install Flutter and the native toolchain for your target platform. From the
+repository root, run:
 
-      cd go_app
-      flutter pub get
-      flutter run -d windows
+```powershell
+cd go_app
+flutter pub get
+flutter run -d windows
+```
 
-  For Android, start an emulator or connect a device, then run "flutter run"
-  from go_app. Android builds require the Android SDK, NDK, CMake, and accepted
-  SDK licenses. For iOS, use macOS with Xcode and run "flutter run" with an iOS
-  simulator or device. Windows development requires the Flutter Windows
-  desktop toolchain.
+For Android, start an emulator or connect a device, then run `flutter run` from
+`go_app`. Android builds require the Android SDK, NDK, CMake, and accepted SDK
+licenses. For iOS, use macOS with Xcode and run `flutter run` with an iOS
+simulator or device. Windows development requires the Flutter Windows desktop
+toolchain.
 
-  To create a release build, run the relevant command from go_app:
+To create a release build, run the relevant command from `go_app`:
 
-      flutter build windows
-      flutter build apk
-      flutter build ios
+```shell
+flutter build windows
+flutter build apk
+flutter build ios
+```
 
-  The local gnugo_ffi package builds the GNU Go C engine as a native asset.
-  Keep go_app inside this GNU Go source tree so its native build hook can find
-  the engine sources. Web and online multiplayer are not supported. For more
-  setup details, platform requirements, licensing, and attribution for bundled
-  problems, read go_app/README.md.
+The local `gnugo_ffi` package builds the GNU Go C engine as a native asset. Keep
+`go_app` inside this GNU Go source tree so its native build hook can find the
+engine sources. Web and online multiplayer are not supported. For more setup
+details, platform requirements, licensing, and attribution for bundled
+problems, see [go_app/README.md](go_app/README.md).
 
 
-                            GNU Go 
+## GNU Go
 
 This is GNU Go, a Go program. Development versions of GNU Go may be
 found at http://www.gnu.org/software/gnugo/devel.html. Consult TODO if
