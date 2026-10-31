@@ -39,6 +39,8 @@ class _TsumegosScreenState extends State<TsumegosScreen> {
         title: 'Tsumegos',
         leftIcon: Icons.arrow_back_ios_new,
         onPressedLeft: () => Navigator.of(context).pop(),
+        rightIcon: Icons.import_export,
+        onPressedRight: () => context.appController.importTsumegos(),
       ),
       body: SafeArea(
         child: RefreshIndicator(

@@ -175,187 +175,143 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          child: ValueListenableBuilder(
-            valueListenable: _collection,
-            builder: (context, collection, child) {
-              return ValueListenableBuilder(
-                valueListenable: _gameIndex,
-                builder: (context, gameIndex, child) {
-                  return ValueListenableBuilder(
-                    valueListenable: _sourceName,
-                    builder: (context, sourceName, child) {
-                      return ValueListenableBuilder(
-                        valueListenable: _path,
-                        builder: (context, path, child) {
-                          return ValueListenableBuilder(
-                            valueListenable: _playback,
-                            builder: (context, playback, child) {
-                              return ValueListenableBuilder(
-                                valueListenable: _error,
-                                builder: (context, error, child) {
-                                  final root = _root;
-                                  final position = _position;
-                                  final comment = _currentNode?.firstValue('C');
+          child: AnimatedBuilder(
+            animation: Listenable.merge([
+              _collection,
+              _gameIndex,
+              _sourceName,
+              _path,
+              _playback,
+              _error,
+            ]),
+            builder: (context, child) {
+              final collection = _collection.value;
+              final gameIndex = _gameIndex.value;
+              final sourceName = _sourceName.value;
+              final path = _path.value;
+              final playback = _playback.value;
+              final error = _error.value;
+              final root = _root;
+              final position = _position;
+              final comment = _currentNode?.firstValue('C');
 
-                                  return Column(
-                                    children: [
-                                      if (collection == null)
-                                        const Padding(
-                                          padding: EdgeInsets.all(24),
-                                          child: Text(
-                                            'Open an SGF file to review its game, comments, and variations.',
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        )
-                                      else ...[
-                                        if (collection.games.length > 1)
-                                          AppDropdown(
-                                            selectedIndex: gameIndex,
-                                            items: [
-                                              for (
-                                                var index = 0;
-                                                index < collection.games.length;
-                                                index++
-                                              )
-                                                DropdownMenuEntry(
-                                                  value: '$index',
-                                                  label: 'Game ${index + 1}',
-                                                ),
-                                            ],
-                                            onSelected: (v) =>
-                                                _selectGame(v.$2),
-                                          ),
-                                        if (sourceName != null)
-                                          Text(sourceName),
-                                        if (root != null) _metadata(root),
-                                        if (position != null) ...[
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            'Move ${path.length} / ${_mainLineLength(root!)}'
-                                            '${position.toMove == 1 ? ' · Black to play' : ' · White to play'}',
-                                          ),
-                                          const SizedBox(height: 16),
-                                          Center(
-                                            child: ConstrainedBox(
-                                              constraints: const BoxConstraints(
-                                                maxWidth: 680,
-                                              ),
-                                              child: AspectRatio(
-                                                aspectRatio: 1,
-                                                child: GoBoard(
-                                                  boardSize: position.size,
-                                                  stones: position.stones,
-                                                  lastMove: position.lastMove,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Wrap(
-                                            alignment: WrapAlignment.center,
-                                            spacing: 12,
-                                            children: [
-                                              IconButton(
-                                                tooltip: 'Previous move',
-                                                onPressed: path.isEmpty
-                                                    ? null
-                                                    : _previous,
-                                                style: IconButton.styleFrom(
-                                                  foregroundColor:
-                                                      Theme.of(context)
-                                                          .extension<
-                                                            AppTheme
-                                                          >()!
-                                                          .foregroundMediumColor,
-                                                ),
-                                                icon: const Icon(
-                                                  Icons.skip_previous,
-                                                ),
-                                              ),
-                                              IconButton(
-                                                tooltip: playback == null
-                                                    ? 'Play'
-                                                    : 'Pause',
-                                                onPressed: _togglePlayback,
-                                                style: IconButton.styleFrom(
-                                                  foregroundColor: Theme.of(context)
-                                                      .extension<AppTheme>()!
-                                                      .foregroundStrongestColor,
-                                                ),
-                                                icon: Icon(
-                                                  playback == null
-                                                      ? Icons.play_arrow
-                                                      : Icons.pause,
-                                                ),
-                                              ),
-                                              IconButton(
-                                                tooltip: 'Next move / choose variation',
-                                                onPressed:
-                                                    _currentNode
-                                                            ?.children
-                                                            .isEmpty ??
-                                                        true
-                                                    ? null
-                                                    : _advance,
-                                                style: IconButton.styleFrom(
-                                                  foregroundColor:
-                                                      Theme.of(context)
-                                                          .extension<
-                                                            AppTheme
-                                                          >()!
-                                                          .foregroundMediumColor,
-                                                ),
-                                                icon: const Icon(
-                                                  Icons.skip_next,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          if (comment != null &&
-                                              comment.isNotEmpty)
-                                            Card(
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(
-                                                  12,
-                                                ),
-                                                child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    const AppBadgeIcon(
-                                                      icon: Icons.comment,
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    Expanded(
-                                                      child: Text(comment),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                        ],
-                                      ],
-                                      if (error != null) ...[
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          error,
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .extension<AppTheme>()!
-                                                .errorDarkColor,
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
+              return Column(
+                children: [
+                  if (collection == null)
+                    const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        'Open an SGF file to review its game, comments, and variations.',
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  else ...[
+                    if (collection.games.length > 1)
+                      AppDropdown(
+                        selectedIndex: gameIndex,
+                        items: [
+                          for (
+                            var index = 0;
+                            index < collection.games.length;
+                            index++
+                          )
+                            DropdownMenuEntry(
+                              value: '$index',
+                              label: 'Game ${index + 1}',
+                            ),
+                        ],
+                        onSelected: (v) => _selectGame(v.$2),
+                      ),
+                    if (sourceName != null) Text(sourceName),
+                    if (root != null) _metadata(root),
+                    if (position != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Move ${path.length} / ${_mainLineLength(root!)}'
+                        '${position.toMove == 1 ? ' · Black to play' : ' · White to play'}',
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 680),
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: GoBoard(
+                              boardSize: position.size,
+                              stones: position.stones,
+                              lastMove: position.lastMove,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 12,
+                        children: [
+                          IconButton(
+                            tooltip: 'Previous move',
+                            onPressed: path.isEmpty ? null : _previous,
+                            style: IconButton.styleFrom(
+                              foregroundColor: Theme.of(context)
+                                  .extension<AppTheme>()!
+                                  .foregroundMediumColor,
+                            ),
+                            icon: const Icon(Icons.skip_previous),
+                          ),
+                          IconButton(
+                            tooltip: playback == null ? 'Play' : 'Pause',
+                            onPressed: _togglePlayback,
+                            style: IconButton.styleFrom(
+                              foregroundColor: Theme.of(context)
+                                  .extension<AppTheme>()!
+                                  .foregroundStrongestColor,
+                            ),
+                            icon: Icon(
+                              playback == null ? Icons.play_arrow : Icons.pause,
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: 'Next move / choose variation',
+                            onPressed: _currentNode?.children.isEmpty ?? true
+                                ? null
+                                : _advance,
+                            style: IconButton.styleFrom(
+                              foregroundColor: Theme.of(context)
+                                  .extension<AppTheme>()!
+                                  .foregroundMediumColor,
+                            ),
+                            icon: const Icon(Icons.skip_next),
+                          ),
+                        ],
+                      ),
+                      if (comment != null && comment.isNotEmpty)
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const AppBadgeIcon(icon: Icons.comment),
+                                const SizedBox(width: 8),
+                                Expanded(child: Text(comment)),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ],
+                  if (error != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      error,
+                      style: TextStyle(
+                        color: Theme.of(context)
+                            .extension<AppTheme>()!
+                            .errorDarkColor,
+                      ),
+                    ),
+                  ],
+                ],
               );
             },
           ),

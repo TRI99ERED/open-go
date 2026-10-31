@@ -204,129 +204,93 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
                 constraints: const BoxConstraints(maxWidth: 820),
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(20),
-                  child: ValueListenableBuilder(
-                    valueListenable: _problemIndex,
-                    builder: (context, index, child) {
-                      return ValueListenableBuilder(
-                        valueListenable: _position,
-                        builder: (context, position, child) {
-                          return ValueListenableBuilder(
-                            valueListenable: _status,
-                            builder: (context, status, child) {
-                              return ValueListenableBuilder(
-                                valueListenable: _mistakes,
-                                builder: (context, mistakes, child) {
-                                  return ValueListenableBuilder(
-                                    valueListenable: _solved,
-                                    builder: (context, solved, child) {
-                                      final hasSelectedProblem =
-                                          index >= 0 && index < problems.length;
-                                      return Column(
-                                        children: [
-                                          if (problems.isNotEmpty)
-                                            AppDropdown(
-                                              selectedIndex: index,
-                                              text: hasSelectedProblem
-                                                  ? _problemLabel(
-                                                      problems[index],
-                                                      index,
-                                                    )
-                                                  : null,
-                                              items: [
-                                                for (
-                                                  var i = 0;
-                                                  i < problems.length;
-                                                  i++
-                                                )
-                                                  DropdownMenuEntry(
-                                                    value: '$i',
-                                                    label: _problemLabel(
-                                                      problems[i],
-                                                      i,
-                                                    ),
-                                                  ),
-                                              ],
-                                              onSelected: (selection) =>
-                                                  _selectProblem(selection.$2),
-                                            ),
-                                          const SizedBox(height: 8),
-                                          if (problems.isEmpty)
-                                            Text(
-                                              status,
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          if (position != null)
-                                            Text(
-                                              '${position.toMove == 1 ? 'Black' : 'White'} to play',
-                                            ),
-                                          if (problems.isNotEmpty)
-                                            Text(
-                                              status,
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          if (mistakes > 0)
-                                            Text(
-                                              'Incorrect attempts: $mistakes',
-                                            ),
-                                          if (position != null) ...[
-                                            const SizedBox(height: 14),
-                                            Center(
-                                              child: ConstrainedBox(
-                                                constraints:
-                                                    const BoxConstraints(
-                                                      maxWidth: 680,
-                                                    ),
-                                                child: AspectRatio(
-                                                  aspectRatio: 1,
-                                                  child: GoBoard(
-                                                    boardSize: position.size,
-                                                    stones: position.stones,
-                                                    lastMove: position.lastMove,
-                                                    onPlay: solved
-                                                        ? null
-                                                        : _tryMove,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                          const SizedBox(height: 12),
-                                          Wrap(
-                                            alignment: WrapAlignment.center,
-                                            spacing: 12,
-                                            children: [
-                                              AppButtonSecondary(
-                                                leftIcon: Icons.refresh,
-                                                text: 'Try again',
-                                                onPressed: _resetProblem,
-                                              ),
-                                              if (context
-                                                      .appState
-                                                      .tsumegos
-                                                      .games
-                                                      .length >
-                                                  index + 1)
-                                                AppButtonPrimary(
-                                                  leftIcon: Icons.navigate_next,
-                                                  text: 'Next',
-                                                  onPressed: () {
-                                                    _problemIndex.value++;
-                                                    _selectProblem(
-                                                      _problemIndex.value,
-                                                    );
-                                                  },
-                                                ),
-                                            ],
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                          );
-                        },
+                  child: AnimatedBuilder(
+                    animation: Listenable.merge([
+                      _problemIndex,
+                      _position,
+                      _status,
+                      _mistakes,
+                      _solved,
+                    ]),
+                    builder: (context, child) {
+                      final index = _problemIndex.value;
+                      final position = _position.value;
+                      final status = _status.value;
+                      final mistakes = _mistakes.value;
+                      final solved = _solved.value;
+                      final hasSelectedProblem =
+                          index >= 0 && index < problems.length;
+                      return Column(
+                        children: [
+                          if (problems.isNotEmpty)
+                            AppDropdown(
+                              selectedIndex: index,
+                              text: hasSelectedProblem
+                                  ? _problemLabel(problems[index], index)
+                                  : null,
+                              items: [
+                                for (var i = 0; i < problems.length; i++)
+                                  DropdownMenuEntry(
+                                    value: '$i',
+                                    label: _problemLabel(problems[i], i),
+                                  ),
+                              ],
+                              onSelected: (selection) =>
+                                  _selectProblem(selection.$2),
+                            ),
+                          const SizedBox(height: 8),
+                          if (problems.isEmpty)
+                            Text(status, textAlign: TextAlign.center),
+                          if (position != null)
+                            Text(
+                              '${position.toMove == 1 ? 'Black' : 'White'} to play',
+                            ),
+                          if (problems.isNotEmpty)
+                            Text(status, textAlign: TextAlign.center),
+                          if (mistakes > 0)
+                            Text('Incorrect attempts: $mistakes'),
+                          if (position != null) ...[
+                            const SizedBox(height: 14),
+                            Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 680,
+                                ),
+                                child: AspectRatio(
+                                  aspectRatio: 1,
+                                  child: GoBoard(
+                                    boardSize: position.size,
+                                    stones: position.stones,
+                                    lastMove: position.lastMove,
+                                    onPlay: solved ? null : _tryMove,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 12),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 12,
+                            children: [
+                              AppButtonSecondary(
+                                leftIcon: Icons.refresh,
+                                text: 'Try again',
+                                onPressed: _resetProblem,
+                              ),
+                              if (context.appState.tsumegos.games.length >
+                                  index + 1)
+                                AppButtonPrimary(
+                                  leftIcon: Icons.navigate_next,
+                                  text: 'Next',
+                                  onPressed: () {
+                                    _problemIndex.value++;
+                                    _selectProblem(_problemIndex.value);
+                                  },
+                                ),
+                            ],
+                          ),
+                        ],
                       );
                     },
                   ),

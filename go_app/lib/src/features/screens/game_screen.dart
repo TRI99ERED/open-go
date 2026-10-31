@@ -357,417 +357,256 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _history,
-      builder: (context, history, child) {
-        return ValueListenableBuilder(
-          valueListenable: _lastMove,
-          builder: (context, lastMove, child) {
-            return ValueListenableBuilder(
-              valueListenable: _board,
-              builder: (context, board, child) {
-                return ValueListenableBuilder(
-                  valueListenable: _humanColor,
-                  builder: (context, humanColor, child) {
-                    return ValueListenableBuilder(
-                      valueListenable: _mode,
-                      builder: (context, gameMode, child) {
-                        return ValueListenableBuilder(
-                          valueListenable: _boardSize,
-                          builder: (context, boardSize, child) {
-                            return ValueListenableBuilder(
-                              valueListenable: _error,
-                              builder: (context, error, child) {
-                                return ValueListenableBuilder(
-                                  valueListenable: _status,
-                                  builder: (context, status, child) {
-                                    return ValueListenableBuilder(
-                                      valueListenable: _busy,
-                                      builder: (context, busy, child) {
-                                        return ValueListenableBuilder(
-                                          valueListenable: _gameOver,
-                                          builder: (context, gameOver, widget) {
-                                            final canPlay =
-                                                !busy &&
-                                                !gameOver &&
-                                                !_isAiTurn;
-                                            return Scaffold(
-                                              appBar: AppNavBar(
-                                                title: 'Game',
-                                                rightIcon: Icons.refresh,
-                                                onPressedRight: busy
-                                                    ? null
-                                                    : _startNewGame,
-                                                leftIcon:
-                                                    Icons.arrow_back_ios_new,
-                                                onPressedLeft: () =>
-                                                    Navigator.of(context).pop(),
-                                              ),
-                                              body: Center(
-                                                child: ConstrainedBox(
-                                                  constraints:
-                                                      const BoxConstraints(
-                                                        maxWidth: 820,
-                                                      ),
-                                                  child: SingleChildScrollView(
-                                                    padding:
-                                                        const EdgeInsets.fromLTRB(
-                                                          spacing20,
-                                                          spacing8,
-                                                          spacing20,
-                                                          spacing24,
-                                                        ),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .stretch,
-                                                      children: [
-                                                        SizedBox(
-                                                          height: 80,
-                                                          child: Column(
-                                                            children: [
-                                                              Text(
-                                                                status,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style: TextStyle(
-                                                                  fontSize:
-                                                                      h1Size,
-                                                                  fontWeight:
-                                                                      h1Weight,
-                                                                  color: Theme.of(context)
-                                                                      .extension<
-                                                                        AppTheme
-                                                                      >()!
-                                                                      .foregroundStrongestColor,
-                                                                ),
-                                                              ),
-                                                              if (busy) ...[
-                                                                const SizedBox(
-                                                                  height:
-                                                                      spacing8,
-                                                                ),
-                                                                LinearProgressIndicator(
-                                                                  color: Theme.of(context)
-                                                                      .extension<
-                                                                        AppTheme
-                                                                      >()!
-                                                                      .foregroundStrongestColor,
-                                                                  backgroundColor:
-                                                                      Theme.of(
-                                                                            context,
-                                                                          )
-                                                                          .extension<
-                                                                            AppTheme
-                                                                          >()!
-                                                                          .backgroundStrongColor,
-                                                                ),
-                                                              ],
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        if (error != null) ...[
-                                                          const SizedBox(
-                                                            height: spacing8,
-                                                          ),
-                                                          SelectableText(
-                                                            error,
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            style: TextStyle(
-                                                              fontSize: bSSize,
-                                                              fontWeight:
-                                                                  bSWeight,
-                                                              color:
-                                                                  Theme.of(
-                                                                        context,
-                                                                      )
-                                                                      .extension<
-                                                                        AppTheme
-                                                                      >()!
-                                                                      .errorDarkColor,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                        const SizedBox(
-                                                          height: spacing20,
-                                                        ),
-                                                        Wrap(
-                                                          alignment:
-                                                              WrapAlignment
-                                                                  .center,
-                                                          crossAxisAlignment:
-                                                              WrapCrossAlignment
-                                                                  .center,
-                                                          spacing: 14,
-                                                          runSpacing: 10,
-                                                          children: [
-                                                            AppLabeledControl(
-                                                              label: 'Board',
-                                                              value: boardSize,
-                                                              items:
-                                                                  _boardSizes,
-                                                              itemLabel: (
-                                                                size,
-                                                              ) => '$size×$size',
-                                                              onSelected: busy
-                                                                  ? null
-                                                                  : (size) {
-                                                                      if (size ==
-                                                                          null) {
-                                                                        return;
-                                                                      }
-                                                                      _boardSize
-                                                                              .value =
-                                                                          size;
-                                                                      _startNewGame();
-                                                                    },
-                                                            ),
-                                                            AppLabeledControl(
-                                                              label: 'Game',
-                                                              value: gameMode
-                                                                  .index,
-                                                              items: GameMode
-                                                                  .values
-                                                                  .map(
-                                                                    (v) =>
-                                                                        v.index,
-                                                                  )
-                                                                  .toList(),
-                                                              itemLabel: (mode) =>
-                                                                  switch (GameMode
-                                                                      .values[mode]) {
-                                                                    GameMode
-                                                                        .vsGnuGo =>
-                                                                      'Vs GNU Go',
-                                                                    GameMode
-                                                                        .passAndPlay =>
-                                                                      'Pass-and-play',
-                                                                  },
-                                                              onSelected: busy
-                                                                  ? null
-                                                                  : (mode) {
-                                                                      if (mode ==
-                                                                          null) {
-                                                                        return;
-                                                                      }
-                                                                      _mode.value =
-                                                                          GameMode
-                                                                              .values[mode];
-
-                                                                      _startNewGame();
-                                                                    },
-                                                            ),
-                                                            if (gameMode ==
-                                                                GameMode
-                                                                    .vsGnuGo)
-                                                              AppLabeledControl(
-                                                                label:
-                                                                    'You play',
-                                                                value:
-                                                                    humanColor,
-                                                                items: const [
-                                                                  1,
-                                                                  2,
-                                                                ],
-                                                                itemLabel:
-                                                                    _colorName,
-                                                                onSelected: busy
-                                                                    ? null
-                                                                    : (color) {
-                                                                        if (color ==
-                                                                            null) {
-                                                                          return;
-                                                                        }
-                                                                        _humanColor.value =
-                                                                            color;
-
-                                                                        _startNewGame();
-                                                                      },
-                                                              ),
-                                                          ],
-                                                        ),
-                                                        const SizedBox(
-                                                          height: spacing20,
-                                                        ),
-                                                        Center(
-                                                          child: ConstrainedBox(
-                                                            constraints:
-                                                                const BoxConstraints(
-                                                                  maxWidth: 680,
-                                                                ),
-                                                            child: AspectRatio(
-                                                              aspectRatio: 1,
-                                                              child: LayoutBuilder(
-                                                                builder:
-                                                                    (
-                                                                      context,
-                                                                      constraints,
-                                                                    ) => GoBoard(
-                                                                      boardSize:
-                                                                          boardSize,
-                                                                      stones:
-                                                                          board,
-                                                                      lastMove:
-                                                                          lastMove,
-                                                                      onPlay:
-                                                                          canPlay
-                                                                          ? _playAt
-                                                                          : null,
-                                                                    ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                          height: spacing20,
-                                                        ),
-                                                        Wrap(
-                                                          alignment:
-                                                              WrapAlignment
-                                                                  .center,
-                                                          spacing: 12,
-                                                          runSpacing: 8,
-                                                          children: [
-                                                            AppButtonPrimary(
-                                                              onPressed: canPlay
-                                                                  ? _pass
-                                                                  : null,
-                                                              leftIcon: Icons
-                                                                  .skip_next,
-                                                              text: 'Pass',
-                                                            ),
-                                                            AppButtonSecondary(
-                                                              onPressed:
-                                                                  !busy &&
-                                                                      history
-                                                                          .isNotEmpty
-                                                                  ? _undo
-                                                                  : null,
-                                                              leftIcon:
-                                                                  Icons.undo,
-                                                              text: 'Undo',
-                                                            ),
-                                                            AppButtonSecondary(
-                                                              onPressed: busy
-                                                                  ? null
-                                                                  : _startNewGame,
-                                                              leftIcon:
-                                                                  Icons.refresh,
-                                                              text: 'New game',
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        AppAccordion(
-                                                          title: 'Game record',
-                                                          children: [
-                                                            Wrap(
-                                                              alignment:
-                                                                  WrapAlignment
-                                                                      .center,
-                                                              spacing: 16,
-                                                              runSpacing: 12,
-                                                              children: [
-                                                                SizedBox(
-                                                                  width: 180,
-                                                                  child: TextField(
-                                                                    controller:
-                                                                        _blackPlayer,
-                                                                    decoration:
-                                                                        const InputDecoration(
-                                                                          labelText: 'Black player',
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                                SizedBox(
-                                                                  width: 180,
-                                                                  child: TextField(
-                                                                    controller:
-                                                                        _whitePlayer,
-                                                                    decoration:
-                                                                        const InputDecoration(
-                                                                          labelText: 'White player',
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                                SizedBox(
-                                                                  width: 180,
-                                                                  child: TextField(
-                                                                    controller:
-                                                                        _gameName,
-                                                                    decoration:
-                                                                        const InputDecoration(
-                                                                          labelText: 'Game name (optional)',
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            const SizedBox(
-                                                              height: spacing12,
-                                                            ),
-                                                            AppButtonSecondary(
-                                                              onPressed: busy
-                                                                  ? null
-                                                                  : _exportSgf,
-                                                              leftIcon: Icons
-                                                                  .save_alt,
-                                                              text: busy
-                                                                  ? 'Exporting…'
-                                                                  : 'Export SGF',
-                                                            ),
-                                                            ValueListenableBuilder(
-                                                              valueListenable:
-                                                                  _recordMessage,
-                                                              builder:
-                                                                  (
-                                                                    context,
-                                                                    message,
-                                                                    child,
-                                                                  ) => message == null
-                                                                  ? const SizedBox.shrink()
-                                                                  : Padding(
-                                                                      padding:
-                                                                          const EdgeInsets.only(
-                                                                            top:
-                                                                                spacing8,
-                                                                          ),
-                                                                      child: Text(
-                                                                        message,
-                                                                        textAlign:
-                                                                            TextAlign.center,
-                                                                      ),
-                                                                    ),
-                                                            ),
-                                                            const SizedBox(
-                                                              height: spacing12,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      },
-                                    );
-                                  },
-                                );
-                              },
-                            );
+    return AnimatedBuilder(
+      animation: Listenable.merge([
+        _history,
+        _lastMove,
+        _board,
+        _humanColor,
+        _mode,
+        _boardSize,
+        _error,
+        _status,
+        _busy,
+        _gameOver,
+        _recordMessage,
+      ]),
+      builder: (context, child) {
+        final history = _history.value;
+        final lastMove = _lastMove.value;
+        final board = _board.value;
+        final humanColor = _humanColor.value;
+        final gameMode = _mode.value;
+        final boardSize = _boardSize.value;
+        final error = _error.value;
+        final status = _status.value;
+        final busy = _busy.value;
+        final gameOver = _gameOver.value;
+        final recordMessage = _recordMessage.value;
+        final canPlay = !busy && !gameOver && !_isAiTurn;
+        return Scaffold(
+          appBar: AppNavBar(
+            title: 'Game',
+            rightIcon: Icons.refresh,
+            onPressedRight: busy ? null : _startNewGame,
+            leftIcon: Icons.arrow_back_ios_new,
+            onPressedLeft: () => Navigator.of(context).pop(),
+          ),
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 820),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(
+                  spacing20,
+                  spacing8,
+                  spacing20,
+                  spacing24,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      height: 80,
+                      child: Column(
+                        children: [
+                          Text(
+                            status,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: h1Size,
+                              fontWeight: h1Weight,
+                              color: Theme.of(context)
+                                  .extension<AppTheme>()!
+                                  .foregroundStrongestColor,
+                            ),
+                          ),
+                          if (busy) ...[
+                            const SizedBox(height: spacing8),
+                            LinearProgressIndicator(
+                              color: Theme.of(context)
+                                  .extension<AppTheme>()!
+                                  .foregroundStrongestColor,
+                              backgroundColor: Theme.of(context)
+                                  .extension<AppTheme>()!
+                                  .backgroundStrongColor,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (error != null) ...[
+                      const SizedBox(height: spacing8),
+                      SelectableText(
+                        error,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: bSSize,
+                          fontWeight: bSWeight,
+                          color: Theme.of(context)
+                              .extension<AppTheme>()!
+                              .errorDarkColor,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: spacing20),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 14,
+                      runSpacing: 10,
+                      children: [
+                        AppLabeledControl(
+                          label: 'Board',
+                          value: boardSize,
+                          items: _boardSizes,
+                          itemLabel: (size) => '$size×$size',
+                          onSelected: busy
+                              ? null
+                              : (size) {
+                                  if (size == null) {
+                                    return;
+                                  }
+                                  _boardSize.value = size;
+                                  _startNewGame();
+                                },
+                        ),
+                        AppLabeledControl(
+                          label: 'Game',
+                          value: gameMode.index,
+                          items: GameMode.values.map((v) => v.index).toList(),
+                          itemLabel: (mode) => switch (GameMode.values[mode]) {
+                            GameMode.vsGnuGo => 'Vs GNU Go',
+                            GameMode.passAndPlay => 'Pass-and-play',
                           },
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-            );
-          },
+                          onSelected: busy
+                              ? null
+                              : (mode) {
+                                  if (mode == null) {
+                                    return;
+                                  }
+                                  _mode.value = GameMode.values[mode];
+
+                                  _startNewGame();
+                                },
+                        ),
+                        if (gameMode == GameMode.vsGnuGo)
+                          AppLabeledControl(
+                            label: 'You play',
+                            value: humanColor,
+                            items: const [1, 2],
+                            itemLabel: _colorName,
+                            onSelected: busy
+                                ? null
+                                : (color) {
+                                    if (color == null) {
+                                      return;
+                                    }
+                                    _humanColor.value = color;
+
+                                    _startNewGame();
+                                  },
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: spacing20),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 680),
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) => GoBoard(
+                              boardSize: boardSize,
+                              stones: board,
+                              lastMove: lastMove,
+                              onPlay: canPlay ? _playAt : null,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: spacing20),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 12,
+                      runSpacing: 8,
+                      children: [
+                        AppButtonPrimary(
+                          onPressed: canPlay ? _pass : null,
+                          leftIcon: Icons.skip_next,
+                          text: 'Pass',
+                        ),
+                        AppButtonSecondary(
+                          onPressed: !busy && history.isNotEmpty ? _undo : null,
+                          leftIcon: Icons.undo,
+                          text: 'Undo',
+                        ),
+                        AppButtonSecondary(
+                          onPressed: busy ? null : _startNewGame,
+                          leftIcon: Icons.refresh,
+                          text: 'New game',
+                        ),
+                      ],
+                    ),
+                    AppAccordion(
+                      title: 'Game record',
+                      children: [
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 16,
+                          runSpacing: 12,
+                          children: [
+                            SizedBox(
+                              width: 180,
+                              child: TextField(
+                                controller: _blackPlayer,
+                                decoration: const InputDecoration(
+                                  labelText: 'Black player',
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 180,
+                              child: TextField(
+                                controller: _whitePlayer,
+                                decoration: const InputDecoration(
+                                  labelText: 'White player',
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 180,
+                              child: TextField(
+                                controller: _gameName,
+                                decoration: const InputDecoration(
+                                  labelText: 'Game name (optional)',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: spacing12),
+                        AppButtonSecondary(
+                          onPressed: busy ? null : _exportSgf,
+                          leftIcon: Icons.save_alt,
+                          text: busy ? 'Exporting…' : 'Export SGF',
+                        ),
+                        if (recordMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: spacing8),
+                            child: Text(
+                              recordMessage,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        const SizedBox(height: spacing12),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         );
       },
     );
