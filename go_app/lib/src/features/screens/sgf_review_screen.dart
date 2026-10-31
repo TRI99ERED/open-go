@@ -10,6 +10,7 @@ import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/widgets/common/app_badge.dart';
 import 'package:opengo/src/widgets/common/app_dropdown.dart';
 import 'package:opengo/src/widgets/common/app_nav_bar.dart';
+import 'package:opengo/src/widgets/common/empty_state.dart';
 import 'package:opengo/src/widgets/go_board.dart';
 
 class SgfReviewScreen extends StatefulWidget {
@@ -201,12 +202,11 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
               return Column(
                 children: [
                   if (collection == null)
-                    Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        context.l10n.openSgfReviewDescription,
-                        textAlign: TextAlign.center,
-                      ),
+                    EmptyState(
+                      title: context.l10n.openSgfGameRecord,
+                      body: context.l10n.openSgfReviewDescription,
+                      buttonText: context.l10n.openSgfGameRecord,
+                      onButtonPressed: _openSgf,
                     )
                   else ...[
                     if (collection.games.length > 1)

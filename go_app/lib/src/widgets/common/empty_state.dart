@@ -33,6 +33,7 @@ class EmptyState extends StatelessWidget {
             children: [
               Text(
                 title,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: h2Size,
                   fontWeight: h2Weight,
