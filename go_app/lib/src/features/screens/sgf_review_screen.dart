@@ -285,17 +285,15 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
                         ],
                       ),
                       if (comment != null && comment.isNotEmpty)
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const AppBadgeIcon(icon: Icons.comment),
-                                const SizedBox(width: 8),
-                                Expanded(child: Text(comment)),
-                              ],
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const AppBadgeIcon(icon: Icons.comment),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(comment)),
+                            ],
                           ),
                         ),
                     ],
