@@ -97,6 +97,77 @@ void main() {
 
     expect(commands, contains('genmove black'));
   });
+
+  testWidgets('scores the game after both players pass', (tester) async {
+    final commands = <String>[];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(extensions: const [AppTheme()]),
+        home: GameScreen(
+          initialMode: GameMode.passAndPlay,
+          engineStart: (boardSize, seed) async {},
+          sendCommand: (command) async {
+            commands.add(command);
+            return command == 'final_score' ? 'B+2.5' : '';
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Pass'));
+    await tester.tap(find.text('Pass'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Pass'));
+    await tester.tap(find.text('Pass'));
+    await tester.pumpAndSettle();
+
+    expect(commands, contains('final_score'));
+    expect(find.text('Black wins by 2.5 points'), findsOneWidget);
+  });
+
+  testWidgets('undo resumes AI when it restored the AI turn', (tester) async {
+    final commands = <String>[];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(extensions: const [AppTheme()]),
+        home: GameScreen(
+          engineStart: (boardSize, seed) async {},
+          sendCommand: (command) async {
+            commands.add(command);
+            if (command == 'genmove white') return 'pass';
+            if (command == 'final_score') return 'B+2.5';
+            return '';
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byKey(const ValueKey('go-board')));
+    await tester.tap(find.byKey(const ValueKey('go-board')));
+    await tester.pumpAndSettle();
+    expect(commands.where((command) => command == 'genmove white').length, 1);
+    expect(find.text('Black to play'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Pass'));
+    await tester.tap(find.text('Pass'));
+    await tester.pumpAndSettle();
+    expect(find.text('Black wins by 2.5 points'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Undo'));
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(commands.where((command) => command == 'genmove white').length, 2);
+    expect(find.text('Black to play'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Pass'));
+    await tester.tap(find.text('Pass'));
+    await tester.pumpAndSettle();
+    expect(commands.where((command) => command == 'final_score').length, 2);
+  });
 }
 
 Future<void> _selectOption(

@@ -137,7 +137,7 @@ class _GameScreenState extends State<GameScreen> {
       final column = point % _boardSize.value;
       final vertex = '${goColumnLabels[column]}${_boardSize.value - row}';
       await _sendCommand('play ${_gtpColor(_toMove.value)} $vertex');
-      _commitMove(_toMove.value, point, await _readBoardState());
+      await _commitMove(_toMove.value, point, await _readBoardState());
       if (!_gameOver.value && _isAiTurn) await _requestAiMove();
     } on GnuGoException catch (error) {
       if (mounted) _error.value = error.message;
@@ -156,7 +156,7 @@ class _GameScreenState extends State<GameScreen> {
 
     try {
       await _sendCommand('play ${_gtpColor(_toMove.value)} pass');
-      _commitMove(_toMove.value, null, await _readBoardState());
+      await _commitMove(_toMove.value, null, await _readBoardState());
       if (!_gameOver.value && _isAiTurn) await _requestAiMove();
     } on GnuGoException catch (error) {
       if (mounted) _error.value = error.message;
@@ -172,14 +172,17 @@ class _GameScreenState extends State<GameScreen> {
     final response = await _sendCommand('genmove ${_gtpColor(color)}');
     if (response.toLowerCase() == 'resign') {
       if (mounted) {
+        final winner = 3 - color;
         _gameOver.value = true;
-        _status.value = '${_colorName(color)} resigns';
+        _gameRoot.setValue('RE', '${winner == 1 ? 'B' : 'W'}+R');
+        _status.value =
+            '${_colorName(color)} resigns — ${_colorName(winner)} wins';
       }
       return;
     }
 
     final point = _parseVertex(response);
-    _commitMove(color, point, await _readBoardState());
+    await _commitMove(color, point, await _readBoardState());
   }
 
   Future<List<int>> _readBoardState() async {
@@ -221,7 +224,11 @@ class _GameScreenState extends State<GameScreen> {
     return (_boardSize.value - rowNumber) * _boardSize.value + column;
   }
 
-  void _commitMove(int color, int? point, List<int> boardAfterMove) {
+  Future<void> _commitMove(
+    int color,
+    int? point,
+    List<int> boardAfterMove,
+  ) async {
     _history.value.add(_snapshot());
     final moveNode = SgfNode(
       properties: {
@@ -245,9 +252,39 @@ class _GameScreenState extends State<GameScreen> {
 
     _toMove.value = 3 - color;
     _gameOver.value = _consecutivePasses.value >= 2;
-    _status.value = _gameOver.value
-        ? 'Both players passed — game over'
-        : '${_colorName(_toMove.value)} to play';
+    if (_gameOver.value) {
+      _status.value = 'Both players passed — scoring game…';
+      await _scoreGame();
+    } else {
+      _status.value = '${_colorName(_toMove.value)} to play';
+    }
+  }
+
+  Future<void> _scoreGame() async {
+    try {
+      final result = (await _sendCommand('final_score')).trim();
+      if (result == '0' || result.toLowerCase() == 'jigo') {
+        _gameRoot.setValue('RE', '0');
+        _status.value = 'Draw';
+        return;
+      }
+
+      final match = RegExp(r'^([BW])\+(\d+(?:\.\d+)?)$').firstMatch(result);
+      if (match == null) {
+        throw GnuGoException('GNU Go returned an invalid final score: $result');
+      }
+
+      final winner = match.group(1) == 'B' ? 1 : 2;
+      final margin = match.group(2)!;
+      _gameRoot.setValue('RE', result);
+      _status.value = '${_colorName(winner)} wins by $margin points';
+    } on GnuGoException catch (error) {
+      _error.value = 'Could not score game: ${error.message}';
+      _status.value = 'Scoring failed';
+    } catch (error) {
+      _error.value = 'Could not score game: $error';
+      _status.value = 'Scoring failed';
+    }
   }
 
   Future<void> _undo() async {
@@ -266,6 +303,7 @@ class _GameScreenState extends State<GameScreen> {
       final snapshot = _history.value[snapshotIndex];
       _history.value.removeRange(snapshotIndex, _history.value.length);
       _recordedMoves.removeRange(snapshotIndex, _recordedMoves.length);
+      _gameRoot.properties.remove('RE');
       final recordParent = _recordedMoves.isEmpty
           ? _gameRoot
           : _recordedMoves.last;
@@ -276,6 +314,7 @@ class _GameScreenState extends State<GameScreen> {
       _consecutivePasses.value = snapshot.consecutivePasses;
       _gameOver.value = false;
       _status.value = '${_colorName(_toMove.value)} to play';
+      if (_isAiTurn) await _requestAiMove();
     } on GnuGoException catch (error) {
       if (mounted) _error.value = error.message;
     } catch (error) {
