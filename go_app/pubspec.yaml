@@ -1,6 +1,6 @@
 name: opengo
 description: "Offline Go games against GNU Go or another local player."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0+1
 
 environment:
@@ -26,3 +26,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/problems/
+    - assets/images/

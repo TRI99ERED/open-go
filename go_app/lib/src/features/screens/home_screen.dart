@@ -77,59 +77,83 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Center(
-          child: ListView(
-            padding: const EdgeInsets.all(spacing24),
-            children: [
-              Text(
-                context.l10n.playGoYourWay,
-                style: TextStyle(
-                  fontSize: h1Size,
-                  fontWeight: h1Weight,
-                  color: Theme.of(context)
-                      .extension<AppTheme>()
-                      ?.foregroundStrongestColor,
+        left: false,
+        right: false,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final imageSize = constraints.biggest.shortestSide.clamp(
+              0.0,
+              1017.0,
+            );
+            return ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                Center(
+                  child: Image.asset(
+                    'assets/images/Open-Go.png',
+                    width: imageSize,
+                    height: imageSize,
+                    fit: BoxFit.contain,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: spacing8),
-              Text(
-                context.l10n.homeDescription,
-                style: TextStyle(
-                  fontSize: h5Size,
-                  fontWeight: h5Weight,
-                  color: Theme.of(context)
-                      .extension<AppTheme>()
-                      ?.foregroundWeakColor,
+                Padding(
+                  padding: const EdgeInsets.all(spacing24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        context.l10n.playGoYourWay,
+                        style: TextStyle(
+                          fontSize: h1Size,
+                          fontWeight: h1Weight,
+                          color: Theme.of(context)
+                              .extension<AppTheme>()
+                              ?.foregroundStrongestColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: spacing8),
+                      Text(
+                        context.l10n.homeDescription,
+                        style: TextStyle(
+                          fontSize: h5Size,
+                          fontWeight: h5Weight,
+                          color: Theme.of(context)
+                              .extension<AppTheme>()
+                              ?.foregroundWeakColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: spacing24),
+                      AppButtonPrimary(
+                        leftIcon: Icons.sports_esports,
+                        text: context.l10n.play,
+                        onPressed: () {
+                          AppNavigator.of(context).push(GamePage());
+                        },
+                      ),
+                      const SizedBox(height: spacing8),
+                      AppButtonSecondary(
+                        leftIcon: Icons.extension,
+                        text: context.l10n.solve,
+                        onPressed: () {
+                          AppNavigator.of(context).push(TsumegosPage());
+                        },
+                      ),
+                      const SizedBox(height: spacing8),
+                      AppButtonSecondary(
+                        leftIcon: Icons.menu_book,
+                        text: context.l10n.review,
+                        onPressed: () {
+                          AppNavigator.of(context).push(ReviewPage());
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: spacing24),
-              AppButtonPrimary(
-                leftIcon: Icons.sports_esports,
-                text: context.l10n.play,
-                onPressed: () {
-                  AppNavigator.of(context).push(GamePage());
-                },
-              ),
-              const SizedBox(height: spacing8),
-              AppButtonSecondary(
-                leftIcon: Icons.extension,
-                text: context.l10n.solve,
-                onPressed: () {
-                  AppNavigator.of(context).push(TsumegosPage());
-                },
-              ),
-              const SizedBox(height: spacing8),
-              AppButtonSecondary(
-                leftIcon: Icons.menu_book,
-                text: context.l10n.review,
-                onPressed: () {
-                  AppNavigator.of(context).push(ReviewPage());
-                },
-              ),
-            ],
-          ),
+              ],
+            );
+          },
         ),
       ),
     );
