@@ -166,6 +166,18 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
     return count;
   }
 
+  Map<int, String> _labelsAtPosition(GoPosition position) {
+    final labels = <int, String>{};
+    for (final value in _currentNode?.values('LB') ?? const <String>[]) {
+      final separator = value.indexOf(':');
+      if (separator < 0) continue;
+      final point = position.pointFromSgf(value.substring(0, separator));
+      final label = value.substring(separator + 1);
+      if (point != null && label.isNotEmpty) labels[point] = label;
+    }
+    return labels;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -248,6 +260,7 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
                               boardSize: position.size,
                               stones: position.stones,
                               lastMove: position.lastMove,
+                              labels: _labelsAtPosition(position),
                             ),
                           ),
                         ),

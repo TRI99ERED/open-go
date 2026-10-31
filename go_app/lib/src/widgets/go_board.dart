@@ -9,12 +9,14 @@ class GoBoard extends StatelessWidget {
   final int boardSize;
   final List<int> stones;
   final int? lastMove;
+  final Map<int, String> labels;
   final ValueChanged<int>? onPlay;
 
   const GoBoard({
     required this.boardSize,
     required this.stones,
     this.lastMove,
+    this.labels = const {},
     this.onPlay,
     super.key,
   });
@@ -31,10 +33,7 @@ class GoBoard extends StatelessWidget {
       return vertices.isEmpty ? context.l10n.none : vertices.join(', ');
     }
 
-    return context.l10n.goBoardSemantics(
-      describe(1),
-      describe(2),
-    );
+    return context.l10n.goBoardSemantics(describe(1), describe(2));
   }
 
   @override
@@ -58,8 +57,8 @@ class GoBoard extends StatelessWidget {
                 : (details) {
                     final inset = size.width * 0.075;
                     final spacing = (size.width - inset * 2) / (boardSize - 1);
-                    final column = ((details.localPosition.dx - inset) / spacing)
-                        .round();
+                    final column =
+                        ((details.localPosition.dx - inset) / spacing).round();
                     final row = ((details.localPosition.dy - inset) / spacing)
                         .round();
                     if (row >= 0 &&
@@ -74,6 +73,7 @@ class GoBoard extends StatelessWidget {
                 boardSize: boardSize,
                 stones: stones,
                 lastMove: lastMove,
+                labels: labels,
               ),
             ),
           ),
@@ -87,11 +87,13 @@ class _GoBoardPainter extends CustomPainter {
   final int boardSize;
   final List<int> stones;
   final int? lastMove;
+  final Map<int, String> labels;
 
   const _GoBoardPainter({
     required this.boardSize,
     required this.stones,
     required this.lastMove,
+    required this.labels,
   });
 
   @override
@@ -167,11 +169,46 @@ class _GoBoardPainter extends CustomPainter {
         );
       }
     }
+
+    for (final entry in labels.entries) {
+      final point = entry.key;
+      final label = entry.value;
+      if (point < 0 || point >= boardSize * boardSize || label.isEmpty) {
+        continue;
+      }
+
+      final color = stones[point] == 1
+          ? Colors.white
+          : stones[point] == 2
+          ? Colors.black
+          : const Color(0xFF49351F);
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: label,
+          style: TextStyle(
+            color: color,
+            fontSize: spacing * 0.5,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+        maxLines: 1,
+        ellipsis: '…',
+      )..layout(maxWidth: spacing * 0.9);
+      final row = point ~/ boardSize;
+      final column = point % boardSize;
+      final center = Offset(inset + spacing * column, inset + spacing * row);
+      textPainter.paint(
+        canvas,
+        center - Offset(textPainter.width / 2, textPainter.height / 2),
+      );
+    }
   }
 
   @override
   bool shouldRepaint(_GoBoardPainter oldDelegate) =>
       oldDelegate.boardSize != boardSize ||
       oldDelegate.stones != stones ||
-      oldDelegate.lastMove != lastMove;
+      oldDelegate.lastMove != lastMove ||
+      oldDelegate.labels != labels;
 }

@@ -55,7 +55,7 @@ class _TsumegosScreenState extends State<TsumegosScreen> {
         title: context.l10n.tsumegos,
         leftIcon: Icons.arrow_back_ios_new,
         onPressedLeft: () => Navigator.of(context).pop(),
-        rightIcon: Icons.import_export,
+        rightIcon: Icons.folder_open,
         onPressedRight: () => context.appController.importTsumegos(
           dialogTitle: context.l10n.importTsumegoSgf,
         ),
