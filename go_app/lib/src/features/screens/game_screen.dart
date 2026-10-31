@@ -14,6 +14,7 @@ import 'package:opengo/src/widgets/common/app_accordion.dart';
 import 'package:opengo/src/widgets/common/app_button.dart';
 import 'package:opengo/src/widgets/common/app_labeled_control.dart';
 import 'package:opengo/src/widgets/common/app_nav_bar.dart';
+import 'package:opengo/src/widgets/common/app_text_area.dart';
 import 'package:opengo/src/widgets/common/app_text_field.dart';
 import 'package:opengo/src/widgets/go_board.dart';
 
@@ -54,9 +55,13 @@ class _GameScreenState extends State<GameScreen> {
   final _status = ValueNotifier('');
   final _error = ValueNotifier<String?>(null);
   final _recordMessage = ValueNotifier<String?>(null);
+  final _markingEnabled = ValueNotifier(false);
+  final _labels = ValueNotifier<Map<int, String>>({});
   final _blackPlayer = TextEditingController();
   final _whitePlayer = TextEditingController();
   final _gameName = TextEditingController();
+  final _gameComment = TextEditingController();
+  final _markerLabel = TextEditingController();
   final List<SgfNode> _recordedMoves = [];
   late SgfNode _gameRoot = _createSgfRoot();
   bool _initializedPlayerNames = false;
@@ -65,12 +70,19 @@ class _GameScreenState extends State<GameScreen> {
   bool get _isAiTurn =>
       _mode.value == GameMode.vsGnuGo && _toMove.value == _aiColor;
 
+  bool _isValidMarkerLabel(String? value) =>
+      value != null && RegExp(r'^(?:[A-Z]|[+-]?\d+)$').hasMatch(value);
+
   @override
   void dispose() {
     _blackPlayer.dispose();
     _whitePlayer.dispose();
     _gameName.dispose();
+    _gameComment.dispose();
+    _markerLabel.dispose();
     _recordMessage.dispose();
+    _markingEnabled.dispose();
+    _labels.dispose();
     super.dispose();
   }
 
@@ -119,6 +131,10 @@ class _GameScreenState extends State<GameScreen> {
       _board.value = List<int>.filled(_boardSize.value * _boardSize.value, 0);
       _history.value.clear();
       _recordedMoves.clear();
+      _gameComment.clear();
+      _markerLabel.clear();
+      _labels.value = {};
+      _markingEnabled.value = false;
       _gameRoot = _createSgfRoot();
       _toMove.value = 1;
       _lastMove.value = null;
@@ -286,6 +302,21 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
+  void _markAt(int point) {
+    final label = _markerLabel.text;
+    if (_busy.value || !_markingEnabled.value || !_isValidMarkerLabel(label)) {
+      return;
+    }
+
+    final labels = Map<int, String>.of(_labels.value);
+    if (labels[point] == label) {
+      labels.remove(point);
+    } else {
+      labels[point] = label;
+    }
+    _labels.value = labels;
+  }
+
   Future<void> _scoreGame() async {
     final l10n = context.l10n;
     try {
@@ -443,6 +474,23 @@ class _GameScreenState extends State<GameScreen> {
         ..setValue('SZ', '${_boardSize.value}')
         ..setValue('PB', _blackPlayer.text.trim())
         ..setValue('PW', _whitePlayer.text.trim());
+      final comment = _gameComment.text.trim();
+      if (comment.isNotEmpty) {
+        _gameRoot.setValue('C', comment);
+      } else {
+        _gameRoot.properties.remove('C');
+      }
+      final annotationNode = _recordedMoves.isEmpty
+          ? _gameRoot
+          : _recordedMoves.last;
+      if (_labels.value.isNotEmpty) {
+        annotationNode.properties['LB'] = [
+          for (final entry in _labels.value.entries)
+            '${GoPosition.empty(_boardSize.value).sgfCoordinate(entry.key)}:${entry.value}',
+        ];
+      } else {
+        annotationNode.properties.remove('LB');
+      }
       if (_gameName.text.trim().isNotEmpty) {
         _gameRoot.setValue('GN', _gameName.text.trim());
       } else {
@@ -489,6 +537,9 @@ class _GameScreenState extends State<GameScreen> {
         _busy,
         _gameOver,
         _recordMessage,
+        _markingEnabled,
+        _labels,
+        _markerLabel,
       ]),
       builder: (context, child) {
         final history = _history.value;
@@ -504,6 +555,7 @@ class _GameScreenState extends State<GameScreen> {
         final busy = _busy.value;
         final gameOver = _gameOver.value;
         final recordMessage = _recordMessage.value;
+        final markingEnabled = _markingEnabled.value;
         final canPlay = !busy && !gameOver && !_isAiTurn;
         return Scaffold(
           appBar: AppNavBar(
@@ -580,7 +632,14 @@ class _GameScreenState extends State<GameScreen> {
                               boardSize: boardSize,
                               stones: board,
                               lastMove: lastMove,
-                              onPlay: canPlay ? _playAt : null,
+                              labels: _labels.value,
+                              onPlay: busy
+                                  ? null
+                                  : markingEnabled
+                                  ? _markAt
+                                  : canPlay
+                                  ? _playAt
+                                  : null,
                             ),
                           ),
                         ),
@@ -609,11 +668,9 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                       ],
                     ),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 14,
-                      runSpacing: 10,
+                    AppAccordion(
+                      title: context.l10n.setup,
+                      startOpen: true,
                       children: [
                         AppLabeledControl(
                           label: context.l10n.board,
@@ -669,7 +726,53 @@ class _GameScreenState extends State<GameScreen> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: spacing20),
+                    AppAccordion(
+                      title: context.l10n.gameAnnotations,
+                      children: [
+                        AppTextArea(
+                          controller: _gameComment,
+                          title: context.l10n.gameComment,
+                          maxLines: 4,
+                        ),
+                        const SizedBox(height: spacing12),
+                        SizedBox(
+                          width: 220,
+                          child: AppTextField(
+                            controller: _markerLabel,
+                            title: context.l10n.markerLabel,
+                            validator: (value) => _isValidMarkerLabel(value)
+                                ? null
+                                : context.l10n.invalidMarkerLabel,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                          ),
+                        ),
+                        const SizedBox(height: spacing8),
+                        AppAccordionText(context.l10n.markerInstructions),
+                        const SizedBox(height: spacing8),
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 12,
+                          runSpacing: 8,
+                          children: [
+                            if (markingEnabled)
+                              AppButtonPrimary(
+                                onPressed: () => _markingEnabled.value = false,
+                                text: context.l10n.disableMarkers,
+                              )
+                            else
+                              AppButtonSecondary(
+                                onPressed:
+                                    !_isValidMarkerLabel(_markerLabel.text)
+                                    ? null
+                                    : () => _markingEnabled.value = true,
+                                text: context.l10n.enableMarkers,
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: spacing12),
+                      ],
+                    ),
                     AppAccordion(
                       title: context.l10n.gameRecord,
                       children: [

@@ -8,6 +8,7 @@ class AppAccordion extends StatefulWidget {
   final String title;
   final List<Widget> children;
   final int selectedCount;
+  final bool startOpen;
   final ValueChanged<bool>? onExpansionChanged;
 
   const AppAccordion({
@@ -15,6 +16,7 @@ class AppAccordion extends StatefulWidget {
     required this.title,
     required this.children,
     this.selectedCount = 0,
+    this.startOpen = false,
     this.onExpansionChanged,
   });
 
@@ -44,6 +46,7 @@ class _AppAccordionState extends State<AppAccordion> {
                   ?.foregroundStrongestColor,
             ),
           ),
+          initiallyExpanded: widget.startOpen,
           shape: ContinuousRectangleBorder(borderRadius: BorderRadius.zero),
           tilePadding: EdgeInsets.zero,
           minTileHeight: 0,

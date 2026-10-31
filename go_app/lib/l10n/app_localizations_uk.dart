@@ -10,13 +10,13 @@ class AppLocalizationsUk extends AppLocalizations {
   AppLocalizationsUk([String locale = 'uk']) : super(locale);
 
   @override
-  String get appTitle => 'Відкритий Ґо';
+  String get appTitle => 'ВідкритийҐо';
 
   @override
   String get home => 'Домівка';
 
   @override
-  String get openGo => 'Відкритий Ґо';
+  String get openGo => 'ВідкритийҐо';
 
   @override
   String get settings => 'Налаштування';
@@ -201,6 +201,28 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get newGame => 'Нова гра';
+
+  @override
+  String get gameAnnotations => 'Анотації гри';
+
+  @override
+  String get gameComment => 'Коментар';
+
+  @override
+  String get markerLabel => 'Позначка на дошці';
+
+  @override
+  String get invalidMarkerLabel => 'Введіть одну велику літеру або ціле число.';
+
+  @override
+  String get enableMarkers => 'Застосувати позначку';
+
+  @override
+  String get disableMarkers => 'Вимкнути позначки';
+
+  @override
+  String get markerInstructions =>
+      'Введіть позначку й натисніть «Застосувати позначку», а потім торкніться точки на дошці. Торкніться ще раз, щоб прибрати цю позначку, або введіть іншу, щоб замінити її.';
 
   @override
   String get gameRecord => 'Запис гри';

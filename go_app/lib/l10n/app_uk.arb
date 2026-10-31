@@ -1,6 +1,6 @@
 {
   "@@locale": "uk",
-  "appTitle": "Відкритий Ґо",
+  "appTitle": "ВідкритийҐо",
   "@appTitle": {
     "description": "Application name shown in the operating system and app chrome."
   },
@@ -8,7 +8,7 @@
   "@home": {
     "description": "Title of the application's home screen."
   },
-  "openGo": "Відкритий Ґо",
+  "openGo": "ВідкритийҐо",
   "@openGo": {
     "description": "Product name shown in the navigation drawer."
   },
@@ -286,6 +286,34 @@
   "newGame": "Нова гра",
   "@newGame": {
     "description": "Game action that starts a new game."
+  },
+  "gameAnnotations": "Анотації гри",
+  "@gameAnnotations": {
+    "description": "Expandable section for comments and board labels."
+  },
+  "gameComment": "Коментар",
+  "@gameComment": {
+    "description": "Text input for a comment saved in the SGF game record."
+  },
+  "markerLabel": "Позначка на дошці",
+  "@markerLabel": {
+    "description": "Text input for the label applied to board intersections."
+  },
+  "invalidMarkerLabel": "Введіть одну велику літеру або ціле число.",
+  "@invalidMarkerLabel": {
+    "description": "Validation error for an invalid board label."
+  },
+  "enableMarkers": "Застосувати позначку",
+  "@enableMarkers": {
+    "description": "Enable applying the entered label to board points."
+  },
+  "disableMarkers": "Вимкнути позначки",
+  "@disableMarkers": {
+    "description": "Stop adding or removing board labels."
+  },
+  "markerInstructions": "Введіть позначку й натисніть «Застосувати позначку», а потім торкніться точки на дошці. Торкніться ще раз, щоб прибрати цю позначку, або введіть іншу, щоб замінити її.",
+  "@markerInstructions": {
+    "description": "Instructions for adding and removing SGF labels on the board."
   },
   "gameRecord": "Запис гри",
   "@gameRecord": {

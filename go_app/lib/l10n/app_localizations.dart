@@ -422,6 +422,48 @@ abstract class AppLocalizations {
   /// **'New game'**
   String get newGame;
 
+  /// Expandable section for comments and board labels.
+  ///
+  /// In en, this message translates to:
+  /// **'Game annotations'**
+  String get gameAnnotations;
+
+  /// Text input for a comment saved in the SGF game record.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get gameComment;
+
+  /// Text input for the label applied to board intersections.
+  ///
+  /// In en, this message translates to:
+  /// **'Board label'**
+  String get markerLabel;
+
+  /// Validation error for an invalid board label.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter one uppercase letter or an integer.'**
+  String get invalidMarkerLabel;
+
+  /// Enable applying the entered label to board points.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply label'**
+  String get enableMarkers;
+
+  /// Stop adding or removing board labels.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop marking'**
+  String get disableMarkers;
+
+  /// Instructions for adding and removing SGF labels on the board.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a label and choose Apply label, then tap a board point. Tap again to remove the same label, or enter a different label to replace it.'**
+  String get markerInstructions;
+
   /// Expandable section containing player names and SGF export controls.
   ///
   /// In en, this message translates to:

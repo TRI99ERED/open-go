@@ -287,6 +287,34 @@
   "@newGame": {
     "description": "Game action that starts a new game."
   },
+  "gameAnnotations": "Game annotations",
+  "@gameAnnotations": {
+    "description": "Expandable section for comments and board labels."
+  },
+  "gameComment": "Comment",
+  "@gameComment": {
+    "description": "Text input for a comment saved in the SGF game record."
+  },
+  "markerLabel": "Board label",
+  "@markerLabel": {
+    "description": "Text input for the label applied to board intersections."
+  },
+  "invalidMarkerLabel": "Enter one uppercase letter or an integer.",
+  "@invalidMarkerLabel": {
+    "description": "Validation error for an invalid board label."
+  },
+  "enableMarkers": "Apply label",
+  "@enableMarkers": {
+    "description": "Enable applying the entered label to board points."
+  },
+  "disableMarkers": "Stop marking",
+  "@disableMarkers": {
+    "description": "Stop adding or removing board labels."
+  },
+  "markerInstructions": "Enter a label and choose Apply label, then tap a board point. Tap again to remove the same label, or enter a different label to replace it.",
+  "@markerInstructions": {
+    "description": "Instructions for adding and removing SGF labels on the board."
+  },
   "gameRecord": "Game record",
   "@gameRecord": {
     "description": "Expandable section containing player names and SGF export controls."

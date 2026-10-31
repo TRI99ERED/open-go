@@ -4,7 +4,10 @@ import 'package:gnugo_ffi/gnugo_ffi.dart';
 import 'package:opengo/l10n/app_localizations.dart';
 import 'package:opengo/src/features/screens/game_screen.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
+import 'package:opengo/src/widgets/common/app_button.dart';
 import 'package:opengo/src/widgets/common/app_dropdown.dart';
+import 'package:opengo/src/widgets/common/app_text_field.dart';
+import 'package:opengo/src/widgets/go_board.dart';
 
 void main() {
   testWidgets('sends the selected integer board size to GNU Go', (
@@ -82,6 +85,121 @@ void main() {
     expect(find.text('Black player'), findsOneWidget);
     expect(find.text('White player'), findsOneWidget);
     expect(find.text('Export SGF'), findsOneWidget);
+  });
+
+  testWidgets('applies, replaces, and removes entered board labels', (
+    tester,
+  ) async {
+    final commands = <String>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: ThemeData(extensions: const [AppTheme()]),
+        home: GameScreen(
+          autoStart: false,
+          initialMode: GameMode.passAndPlay,
+          sendCommand: (command) async {
+            commands.add(command);
+            return '';
+          },
+        ),
+      ),
+    );
+
+    await tester.ensureVisible(find.text('Game annotations'));
+    await tester.tap(find.text('Game annotations'));
+    await tester.pumpAndSettle();
+    final markerField = find.descendant(
+      of: find.ancestor(
+        of: find.text('Board label'),
+        matching: find.byType(AppTextField),
+      ),
+      matching: find.byType(TextFormField),
+    );
+    await tester.ensureVisible(markerField);
+    await tester.enterText(markerField, '1');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apply label'));
+    await tester.pumpAndSettle();
+    await _tapBoardPoint(tester, row: 4, column: 4);
+    expect(tester.widget<GoBoard>(find.byType(GoBoard)).labels.values, ['1']);
+    await _tapBoardPoint(tester, row: 4, column: 4);
+    expect(tester.widget<GoBoard>(find.byType(GoBoard)).labels, isEmpty);
+    await _tapBoardPoint(tester, row: 4, column: 4);
+    expect(tester.widget<GoBoard>(find.byType(GoBoard)).labels[40], '1');
+
+    await tester.enterText(markerField, 'A');
+    await tester.pumpAndSettle();
+    await _tapBoardPoint(tester, row: 4, column: 4);
+    expect(tester.widget<GoBoard>(find.byType(GoBoard)).labels[40], 'A');
+    await _tapBoardPoint(tester, row: 4, column: 4);
+    expect(tester.widget<GoBoard>(find.byType(GoBoard)).labels, isEmpty);
+    await _tapBoardPoint(tester, row: 4, column: 4);
+    await _tapBoardPoint(tester, row: 4, column: 5);
+
+    expect(tester.widget<GoBoard>(find.byType(GoBoard)).labels, {
+      40: 'A',
+      41: 'A',
+    });
+    expect(commands, isEmpty);
+
+    await tester.ensureVisible(find.text('Stop marking'));
+    await tester.tap(find.text('Stop marking'));
+    await _tapBoardPoint(tester, row: 4, column: 6);
+    expect(commands, contains('play black G5'));
+  });
+
+  testWidgets('validates board labels as uppercase letters or integers', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: ThemeData(extensions: const [AppTheme()]),
+        home: const GameScreen(
+          autoStart: false,
+          initialMode: GameMode.passAndPlay,
+        ),
+      ),
+    );
+
+    await tester.ensureVisible(find.text('Game annotations'));
+    await tester.tap(find.text('Game annotations'));
+    await tester.pumpAndSettle();
+    final markerField = find.descendant(
+      of: find.ancestor(
+        of: find.text('Board label'),
+        matching: find.byType(AppTextField),
+      ),
+      matching: find.byType(TextFormField),
+    );
+    final applyButton = find.widgetWithText(AppButtonSecondary, 'Apply label');
+    await tester.ensureVisible(markerField);
+
+    for (final invalidLabel in ['a', 'AB', '12.3', '']) {
+      await tester.enterText(markerField, invalidLabel);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Enter one uppercase letter or an integer.'),
+        findsWidgets,
+      );
+      expect(tester.widget<AppButtonSecondary>(applyButton).onPressed, isNull);
+    }
+
+    for (final validLabel in ['Z', '123', '-7']) {
+      await tester.enterText(markerField, validLabel);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Enter one uppercase letter or an integer.'),
+        findsNothing,
+      );
+      expect(
+        tester.widget<AppButtonSecondary>(applyButton).onPressed,
+        isNotNull,
+      );
+    }
   });
 
   testWidgets('localizes illegal engine move errors', (tester) async {
@@ -226,10 +344,32 @@ Future<void> _selectOption(
     of: find.text(controlLabel),
     matching: find.byType(AppDropdown),
   );
-  await tester.tap(
-    find.descendant(of: control, matching: find.byType(TextFormField)),
+  final field = find.descendant(
+    of: control,
+    matching: find.byType(TextFormField),
   );
+  await tester.ensureVisible(field);
+  await tester.tap(field);
   await tester.pumpAndSettle();
   await tester.tap(find.text(option).last);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _tapBoardPoint(
+  WidgetTester tester, {
+  required int row,
+  required int column,
+}) async {
+  await tester.ensureVisible(find.byKey(const ValueKey('go-board')));
+  await tester.pumpAndSettle();
+  final rect = tester.getRect(find.byKey(const ValueKey('go-board')));
+  const insetRatio = 0.075;
+  final spacing = rect.width * (1 - 2 * insetRatio) / 8;
+  await tester.tapAt(
+    Offset(
+      rect.left + rect.width * insetRatio + spacing * column,
+      rect.top + rect.height * insetRatio + spacing * row,
+    ),
+  );
   await tester.pumpAndSettle();
 }

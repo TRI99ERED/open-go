@@ -202,6 +202,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newGame => 'New game';
 
   @override
+  String get gameAnnotations => 'Game annotations';
+
+  @override
+  String get gameComment => 'Comment';
+
+  @override
+  String get markerLabel => 'Board label';
+
+  @override
+  String get invalidMarkerLabel => 'Enter one uppercase letter or an integer.';
+
+  @override
+  String get enableMarkers => 'Apply label';
+
+  @override
+  String get disableMarkers => 'Stop marking';
+
+  @override
+  String get markerInstructions =>
+      'Enter a label and choose Apply label, then tap a board point. Tap again to remove the same label, or enter a different label to replace it.';
+
+  @override
   String get gameRecord => 'Game record';
 
   @override
