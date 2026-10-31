@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../core/game/go_position.dart';
 import '../core/localization/localization.dart';
+import '../features/themes/app_theme.dart';
 
 class GoBoard extends StatelessWidget {
   final int boardSize;
@@ -74,6 +75,9 @@ class GoBoard extends StatelessWidget {
                 stones: stones,
                 lastMove: lastMove,
                 labels: labels,
+                labelColor: Theme.of(context)
+                    .extension<AppTheme>()!
+                    .highlightMediumColor,
               ),
             ),
           ),
@@ -88,12 +92,14 @@ class _GoBoardPainter extends CustomPainter {
   final List<int> stones;
   final int? lastMove;
   final Map<int, String> labels;
+  final Color labelColor;
 
   const _GoBoardPainter({
     required this.boardSize,
     required this.stones,
     required this.lastMove,
     required this.labels,
+    required this.labelColor,
   });
 
   @override
@@ -177,16 +183,11 @@ class _GoBoardPainter extends CustomPainter {
         continue;
       }
 
-      final color = stones[point] == 1
-          ? Colors.white
-          : stones[point] == 2
-          ? Colors.black
-          : const Color(0xFF49351F);
       final textPainter = TextPainter(
         text: TextSpan(
           text: label,
           style: TextStyle(
-            color: color,
+            color: labelColor,
             fontSize: spacing * 0.5,
             fontWeight: FontWeight.w600,
           ),
@@ -210,5 +211,6 @@ class _GoBoardPainter extends CustomPainter {
       oldDelegate.boardSize != boardSize ||
       oldDelegate.stones != stones ||
       oldDelegate.lastMove != lastMove ||
-      oldDelegate.labels != labels;
+      oldDelegate.labels != labels ||
+      oldDelegate.labelColor != labelColor;
 }

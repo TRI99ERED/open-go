@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opengo/l10n/app_localizations.dart';
+import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/widgets/go_board.dart';
 
 void main() {
@@ -10,6 +11,7 @@ void main() {
     const labels = {0: 'A', 1: 'B'};
     await tester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(extensions: const [AppTheme()]),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: SizedBox(
