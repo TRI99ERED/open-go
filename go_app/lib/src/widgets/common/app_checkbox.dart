@@ -71,7 +71,7 @@ class AppCheckboxTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: enabled && onChanged != null ? () => onChanged!(value) : null,
+      onPressed: enabled && onChanged != null ? () => onChanged!(!value) : null,
       style: TextButton.styleFrom(
         padding: EdgeInsets.symmetric(
           horizontal: spacing16,

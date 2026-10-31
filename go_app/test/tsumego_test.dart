@@ -25,14 +25,20 @@ void main() {
 
     final appController = AppController();
     final themeMode = ValueNotifier(ThemeMode.system);
+    final fullscreenMode = ValueNotifier(false);
     addTearDown(appController.dispose);
     addTearDown(themeMode.dispose);
+    addTearDown(fullscreenMode.dispose);
 
     await tester.pumpWidget(
       MaterialApp(
         home: AppScope(
           appController: appController,
           themeMode: themeMode,
+          fullscreenMode: fullscreenMode,
+          onFullscreenModeChanged: (value) async {
+            fullscreenMode.value = value;
+          },
           child: const TsumegoScreen(index: 5),
         ),
       ),

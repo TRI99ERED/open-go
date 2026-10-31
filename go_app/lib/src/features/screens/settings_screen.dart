@@ -5,6 +5,7 @@ import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/features/themes/styles.dart';
 import 'package:opengo/src/router/app_navigator.dart';
 import 'package:opengo/src/widgets/common/app_accordion.dart';
+import 'package:opengo/src/widgets/common/app_checkbox.dart';
 import 'package:opengo/src/widgets/common/app_list_title.dart';
 import 'package:opengo/src/widgets/common/app_nav_bar.dart';
 import 'package:opengo/src/widgets/common/app_radio_button.dart';
@@ -91,6 +92,30 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                    );
+                  },
+                ),
+                ValueListenableBuilder<bool>(
+                  valueListenable: context.fullscreenMode,
+                  builder: (context, value, child) {
+                    return AppCheckboxTile(
+                      value: value,
+                      title: 'Fullscreen',
+                      onChanged: (value) async {
+                        if (value == null) return;
+                        try {
+                          await context.setFullscreenMode(value);
+                        } catch (error) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Unable to change fullscreen mode: $error',
+                              ),
+                            ),
+                          );
+                        }
+                      },
                     );
                   },
                 ),

@@ -1,8 +1,10 @@
 #include "flutter_window.h"
 
 #include <optional>
+#include <variant>
 
 #include "flutter/generated_plugin_registrant.h"
+#include <flutter/standard_method_codec.h>
 
 FlutterWindow::FlutterWindow(const flutter::DartProject& project)
     : project_(project) {}
@@ -24,6 +26,37 @@ bool FlutterWindow::OnCreate() {
   if (!flutter_controller_->engine() || !flutter_controller_->view()) {
     return false;
   }
+
+  window_channel_ =
+      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+          flutter_controller_->engine()->messenger(), "opengo/window",
+          &flutter::StandardMethodCodec::GetInstance());
+  window_channel_->SetMethodCallHandler(
+      [this](const flutter::MethodCall<flutter::EncodableValue>& call,
+             std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>>
+                 result) {
+        if (call.method_name() != "setFullscreen") {
+          result->NotImplemented();
+          return;
+        }
+
+        const auto* arguments = call.arguments();
+        const auto* fullscreen =
+            arguments ? std::get_if<bool>(arguments) : nullptr;
+        if (!fullscreen) {
+          result->Error("invalid_arguments", "Expected a boolean value.");
+          return;
+        }
+
+        if (!SetFullscreen(*fullscreen)) {
+          result->Error("fullscreen_failed",
+                        "Could not change the window fullscreen state.");
+          return;
+        }
+
+        result->Success();
+      });
+
   RegisterPlugins(flutter_controller_->engine());
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
@@ -40,6 +73,11 @@ bool FlutterWindow::OnCreate() {
 }
 
 void FlutterWindow::OnDestroy() {
+  if (window_channel_) {
+    window_channel_->SetMethodCallHandler(nullptr);
+    window_channel_.reset();
+  }
+
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
   }

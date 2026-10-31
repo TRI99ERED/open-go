@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'src/features/app/app_controller/app_controller.dart';
 import 'src/features/app/app_scope.dart';
@@ -63,6 +65,7 @@ class _AppState extends State<App> {
     ),
   );
   final _themeMode = ValueNotifier<ThemeMode>(ThemeMode.system);
+  final _fullscreenMode = ValueNotifier<bool>(false);
 
   late final AppController _appController;
   late final AppRouterDelegate _routerDelegate;
@@ -82,6 +85,24 @@ class _AppState extends State<App> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _setFullscreenMode(bool value) async {
+    final previousValue = _fullscreenMode.value;
+    _fullscreenMode.value = value;
+    try {
+      if (defaultTargetPlatform == TargetPlatform.windows) {
+        await const MethodChannel('opengo/window')
+            .invokeMethod<void>('setFullscreen', value);
+      } else {
+        await SystemChrome.setEnabledSystemUIMode(
+          value ? SystemUiMode.immersiveSticky : SystemUiMode.edgeToEdge,
+        );
+      }
+    } catch (error, stackTrace) {
+      _fullscreenMode.value = previousValue;
+      Error.throwWithStackTrace(error, stackTrace);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
@@ -97,6 +118,8 @@ class _AppState extends State<App> {
           builder: (context, child) => AppScope(
             appController: _appController,
             themeMode: _themeMode,
+            fullscreenMode: _fullscreenMode,
+            onFullscreenModeChanged: _setFullscreenMode,
             child: child ?? const SplashScreen(),
           ),
         );
@@ -108,6 +131,8 @@ class _AppState extends State<App> {
   void dispose() {
     _appController.removeListener(_rebuild);
     _appController.dispose();
+    _themeMode.dispose();
+    _fullscreenMode.dispose();
     super.dispose();
   }
 }

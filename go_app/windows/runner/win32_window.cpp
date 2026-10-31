@@ -255,6 +255,87 @@ RECT Win32Window::GetClientArea() {
   return frame;
 }
 
+bool Win32Window::SetFullscreen(bool fullscreen) {
+  if (!window_handle_) {
+    return false;
+  }
+  if (fullscreen == is_fullscreen_) {
+    return true;
+  }
+
+  if (fullscreen) {
+    RECT window_rect;
+    if (!GetWindowRect(window_handle_, &window_rect)) {
+      return false;
+    }
+
+    HMONITOR monitor = MonitorFromWindow(window_handle_, MONITOR_DEFAULTTONEAREST);
+    MONITORINFO monitor_info{sizeof(MONITORINFO)};
+    if (!GetMonitorInfo(monitor, &monitor_info)) {
+      return false;
+    }
+
+    const LONG_PTR window_style = GetWindowLongPtr(window_handle_, GWL_STYLE);
+    restore_window_rect_ = window_rect;
+    restore_window_style_ = window_style;
+    fullscreen_window_style_ =
+        (window_style & ~static_cast<LONG_PTR>(WS_OVERLAPPEDWINDOW)) | WS_POPUP;
+
+    SetLastError(ERROR_SUCCESS);
+    SetWindowLongPtr(window_handle_, GWL_STYLE, fullscreen_window_style_);
+    if (GetLastError() != ERROR_SUCCESS) {
+      return false;
+    }
+
+    const RECT& bounds = monitor_info.rcMonitor;
+    if (!SetWindowPos(window_handle_, nullptr, bounds.left, bounds.top,
+                      bounds.right - bounds.left, bounds.bottom - bounds.top,
+                      SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED |
+                          SWP_NOACTIVATE)) {
+      SetWindowLongPtr(window_handle_, GWL_STYLE, restore_window_style_);
+      SetWindowPos(window_handle_, nullptr, window_rect.left, window_rect.top,
+                   window_rect.right - window_rect.left,
+                   window_rect.bottom - window_rect.top,
+                   SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED |
+                       SWP_NOACTIVATE);
+      return false;
+    }
+
+    is_fullscreen_ = true;
+    return true;
+  }
+
+  RECT fullscreen_rect;
+  if (!GetWindowRect(window_handle_, &fullscreen_rect)) {
+    return false;
+  }
+
+  SetLastError(ERROR_SUCCESS);
+  SetWindowLongPtr(window_handle_, GWL_STYLE, restore_window_style_);
+  if (GetLastError() != ERROR_SUCCESS) {
+    return false;
+  }
+
+  if (!SetWindowPos(
+          window_handle_, nullptr, restore_window_rect_.left,
+          restore_window_rect_.top,
+          restore_window_rect_.right - restore_window_rect_.left,
+          restore_window_rect_.bottom - restore_window_rect_.top,
+          SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED |
+              SWP_NOACTIVATE)) {
+    SetWindowLongPtr(window_handle_, GWL_STYLE, fullscreen_window_style_);
+    SetWindowPos(
+        window_handle_, nullptr, fullscreen_rect.left, fullscreen_rect.top,
+        fullscreen_rect.right - fullscreen_rect.left,
+        fullscreen_rect.bottom - fullscreen_rect.top,
+        SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+    return false;
+  }
+
+  is_fullscreen_ = false;
+  return true;
+}
+
 HWND Win32Window::GetHandle() {
   return window_handle_;
 }

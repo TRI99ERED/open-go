@@ -37,11 +37,11 @@ class AppTheme extends ThemeExtension<AppTheme> {
   final Color leagueMechanicModsColor;
 
   const AppTheme({
-    this.highlightDarkestColor = const Color(0xFFCB3C29),
-    this.highlightDarkColor = const Color(0xFFFB5132),
-    this.highlightMediumColor = const Color(0xFFFF9582),
-    this.highlightLightColor = const Color(0xFFFFC6BC),
-    this.highlightLightestColor = const Color(0xFFFFE3E3),
+    this.highlightDarkestColor = const Color(0xFF3C8906),
+    this.highlightDarkColor = const Color(0xFF69A435),
+    this.highlightMediumColor = const Color(0xFF91C058),
+    this.highlightLightColor = const Color(0xFFB9DD7A),
+    this.highlightLightestColor = const Color(0xFFE0FA9E),
     this.backgroundWeakestColor = const Color(0xFFC5C6CC),
     this.backgroundWeakColor = const Color(0xFFD4D6DD),
     this.backgroundMediumColor = const Color(0xFFE8E9F1),
