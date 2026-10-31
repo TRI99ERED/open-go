@@ -14,6 +14,7 @@ import 'package:opengo/src/widgets/common/app_accordion.dart';
 import 'package:opengo/src/widgets/common/app_button.dart';
 import 'package:opengo/src/widgets/common/app_labeled_control.dart';
 import 'package:opengo/src/widgets/common/app_nav_bar.dart';
+import 'package:opengo/src/widgets/common/app_text_field.dart';
 import 'package:opengo/src/widgets/go_board.dart';
 
 enum GameMode { vsGnuGo, passAndPlay }
@@ -626,29 +627,23 @@ class _GameScreenState extends State<GameScreen> {
                           children: [
                             SizedBox(
                               width: 180,
-                              child: TextField(
+                              child: AppTextField(
                                 controller: _blackPlayer,
-                                decoration: InputDecoration(
-                                  labelText: context.l10n.blackPlayer,
-                                ),
+                                title: context.l10n.blackPlayer,
                               ),
                             ),
                             SizedBox(
                               width: 180,
-                              child: TextField(
-                                controller: _whitePlayer,
-                                decoration: InputDecoration(
-                                  labelText: context.l10n.whitePlayer,
-                                ),
+                              child: AppTextField(
+                                controller: _blackPlayer,
+                                title: context.l10n.whitePlayer,
                               ),
                             ),
                             SizedBox(
                               width: 180,
-                              child: TextField(
-                                controller: _gameName,
-                                decoration: InputDecoration(
-                                  labelText: context.l10n.gameNameOptional,
-                                ),
+                              child: AppTextField(
+                                controller: _blackPlayer,
+                                title: context.l10n.gameNameOptional,
                               ),
                             ),
                           ],

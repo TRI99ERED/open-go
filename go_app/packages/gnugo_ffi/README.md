@@ -16,6 +16,9 @@ and generate their C tables, then compiles the GNU Go engine sources for the
 requested Flutter target. This lets cross builds use host-built pattern tools
 instead of trying to execute target binaries.
 
+Android captures GTP responses with an in-memory stream rather than relying on
+`tmpfile()`, which is unavailable in the app sandbox.
+
 This package is intentionally local to the GNU Go source tree. Its relative
 source references expect the app at `go_app/packages/gnugo_ffi`. GNU Go is
 licensed under GPL version 3 or later; see the repository's `COPYING` file.
