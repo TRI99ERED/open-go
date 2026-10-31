@@ -296,6 +296,54 @@ abstract class AppLocalizations {
   /// **'Engine error'**
   String get engineError;
 
+  /// Reason shown when GNU Go rejects a move as illegal.
+  ///
+  /// In en, this message translates to:
+  /// **'That move is not legal. It may be suicide or violate the ko rule.'**
+  String get engineIllegalMove;
+
+  /// Reason shown when GNU Go rejects a move on an occupied intersection.
+  ///
+  /// In en, this message translates to:
+  /// **'That intersection is already occupied.'**
+  String get engineOccupiedPoint;
+
+  /// Reason shown when GNU Go rejects a move with an invalid color or coordinate.
+  ///
+  /// In en, this message translates to:
+  /// **'The move has an invalid color or board coordinate.'**
+  String get engineInvalidMove;
+
+  /// Error shown when GNU Go cannot initialize the selected board size.
+  ///
+  /// In en, this message translates to:
+  /// **'The Go engine could not start a game on a {boardSize}×{boardSize} board.'**
+  String engineStartFailed(Object boardSize);
+
+  /// Error shown when GNU Go returns an invalid list of stones.
+  ///
+  /// In en, this message translates to:
+  /// **'The Go engine returned an invalid board state.'**
+  String get engineInvalidBoardState;
+
+  /// Error shown when GNU Go returns an invalid move.
+  ///
+  /// In en, this message translates to:
+  /// **'The Go engine returned an invalid move: {move}.'**
+  String engineInvalidMoveResponse(Object move);
+
+  /// Error shown when GNU Go returns an invalid score estimate.
+  ///
+  /// In en, this message translates to:
+  /// **'The Go engine returned an invalid score estimate: {score}.'**
+  String engineInvalidScoreResponse(Object score);
+
+  /// Fallback message shown for an unrecognized Go engine error.
+  ///
+  /// In en, this message translates to:
+  /// **'The Go engine could not complete the request: {details}'**
+  String engineUnexpectedError(Object details);
+
   /// Error shown when a new game cannot be started.
   ///
   /// In en, this message translates to:

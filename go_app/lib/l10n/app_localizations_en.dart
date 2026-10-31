@@ -118,6 +118,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get engineError => 'Engine error';
 
   @override
+  String get engineIllegalMove =>
+      'That move is not legal. It may be suicide or violate the ko rule.';
+
+  @override
+  String get engineOccupiedPoint => 'That intersection is already occupied.';
+
+  @override
+  String get engineInvalidMove =>
+      'The move has an invalid color or board coordinate.';
+
+  @override
+  String engineStartFailed(Object boardSize) {
+    return 'The Go engine could not start a game on a $boardSize×$boardSize board.';
+  }
+
+  @override
+  String get engineInvalidBoardState =>
+      'The Go engine returned an invalid board state.';
+
+  @override
+  String engineInvalidMoveResponse(Object move) {
+    return 'The Go engine returned an invalid move: $move.';
+  }
+
+  @override
+  String engineInvalidScoreResponse(Object score) {
+    return 'The Go engine returned an invalid score estimate: $score.';
+  }
+
+  @override
+  String engineUnexpectedError(Object details) {
+    return 'The Go engine could not complete the request: $details';
+  }
+
+  @override
   String couldNotStartGame(Object error) {
     return 'Could not start the game: $error';
   }

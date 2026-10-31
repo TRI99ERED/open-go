@@ -158,6 +158,58 @@
   "@engineError": {
     "description": "Game status heading shown when the Go engine reports an error."
   },
+  "engineIllegalMove": "That move is not legal. It may be suicide or violate the ko rule.",
+  "@engineIllegalMove": {
+    "description": "Reason shown when GNU Go rejects a move as illegal."
+  },
+  "engineOccupiedPoint": "That intersection is already occupied.",
+  "@engineOccupiedPoint": {
+    "description": "Reason shown when GNU Go rejects a move on an occupied intersection."
+  },
+  "engineInvalidMove": "The move has an invalid color or board coordinate.",
+  "@engineInvalidMove": {
+    "description": "Reason shown when GNU Go rejects a move with an invalid color or coordinate."
+  },
+  "engineStartFailed": "The Go engine could not start a game on a {boardSize}×{boardSize} board.",
+  "@engineStartFailed": {
+    "description": "Error shown when GNU Go cannot initialize the selected board size.",
+    "placeholders": {
+      "boardSize": {
+        "description": "Selected board size."
+      }
+    }
+  },
+  "engineInvalidBoardState": "The Go engine returned an invalid board state.",
+  "@engineInvalidBoardState": {
+    "description": "Error shown when GNU Go returns an invalid list of stones."
+  },
+  "engineInvalidMoveResponse": "The Go engine returned an invalid move: {move}.",
+  "@engineInvalidMoveResponse": {
+    "description": "Error shown when GNU Go returns an invalid move.",
+    "placeholders": {
+      "move": {
+        "description": "Invalid move returned by the Go engine."
+      }
+    }
+  },
+  "engineInvalidScoreResponse": "The Go engine returned an invalid score estimate: {score}.",
+  "@engineInvalidScoreResponse": {
+    "description": "Error shown when GNU Go returns an invalid score estimate.",
+    "placeholders": {
+      "score": {
+        "description": "Invalid score estimate returned by the Go engine."
+      }
+    }
+  },
+  "engineUnexpectedError": "The Go engine could not complete the request: {details}",
+  "@engineUnexpectedError": {
+    "description": "Fallback message shown for an unrecognized Go engine error.",
+    "placeholders": {
+      "details": {
+        "description": "Unrecognized error details returned by the Go engine."
+      }
+    }
+  },
   "couldNotStartGame": "Could not start the game: {error}",
   "@couldNotStartGame": {
     "description": "Error shown when a new game cannot be started.",

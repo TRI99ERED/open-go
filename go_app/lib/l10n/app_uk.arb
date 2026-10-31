@@ -158,6 +158,58 @@
   "@engineError": {
     "description": "Game status heading shown when the Go engine reports an error."
   },
+  "engineIllegalMove": "Цей хід неможливий. Можливо, це самогубний хід або порушення правила ко.",
+  "@engineIllegalMove": {
+    "description": "Reason shown when GNU Go rejects a move as illegal."
+  },
+  "engineOccupiedPoint": "На цьому перетині вже є камінь.",
+  "@engineOccupiedPoint": {
+    "description": "Reason shown when GNU Go rejects a move on an occupied intersection."
+  },
+  "engineInvalidMove": "Хід має неправильний колір або координату на дошці.",
+  "@engineInvalidMove": {
+    "description": "Reason shown when GNU Go rejects a move with an invalid color or coordinate."
+  },
+  "engineStartFailed": "Рушій Ґо не зміг почати гру на дошці {boardSize}×{boardSize}.",
+  "@engineStartFailed": {
+    "description": "Error shown when GNU Go cannot initialize the selected board size.",
+    "placeholders": {
+      "boardSize": {
+        "description": "Selected board size."
+      }
+    }
+  },
+  "engineInvalidBoardState": "Рушій Ґо повернув неправильний стан дошки.",
+  "@engineInvalidBoardState": {
+    "description": "Error shown when GNU Go returns an invalid list of stones."
+  },
+  "engineInvalidMoveResponse": "Рушій Ґо повернув неправильний хід: {move}.",
+  "@engineInvalidMoveResponse": {
+    "description": "Error shown when GNU Go returns an invalid move.",
+    "placeholders": {
+      "move": {
+        "description": "Invalid move returned by the Go engine."
+      }
+    }
+  },
+  "engineInvalidScoreResponse": "Рушій Ґо повернув неправильну оцінку рахунку: {score}.",
+  "@engineInvalidScoreResponse": {
+    "description": "Error shown when GNU Go returns an invalid score estimate.",
+    "placeholders": {
+      "score": {
+        "description": "Invalid score estimate returned by the Go engine."
+      }
+    }
+  },
+  "engineUnexpectedError": "Рушій Ґо не зміг виконати запит: {details}",
+  "@engineUnexpectedError": {
+    "description": "Fallback message shown for an unrecognized Go engine error.",
+    "placeholders": {
+      "details": {
+        "description": "Unrecognized error details returned by the Go engine."
+      }
+    }
+  },
   "couldNotStartGame": "Не вдалося розпочати гру: {error}",
   "@couldNotStartGame": {
     "description": "Error shown when a new game cannot be started.",

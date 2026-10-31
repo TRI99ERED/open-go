@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gnugo_ffi/gnugo_ffi.dart';
 import 'package:opengo/l10n/app_localizations.dart';
 import 'package:opengo/src/features/screens/game_screen.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
@@ -81,6 +82,34 @@ void main() {
     expect(find.text('Black player'), findsOneWidget);
     expect(find.text('White player'), findsOneWidget);
     expect(find.text('Export SGF'), findsOneWidget);
+  });
+
+  testWidgets('localizes illegal engine move errors', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('uk'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: ThemeData(extensions: const [AppTheme()]),
+        home: GameScreen(
+          autoStart: false,
+          initialMode: GameMode.passAndPlay,
+          sendCommand: (command) async {
+            throw const GnuGoException('illegal move');
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('go-board')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text(
+        'Цей хід неможливий. Можливо, це самогубний хід або порушення правила ко.',
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('changing player color starts with the opponent', (tester) async {

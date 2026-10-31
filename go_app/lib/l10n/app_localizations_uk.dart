@@ -119,6 +119,41 @@ class AppLocalizationsUk extends AppLocalizations {
   String get engineError => 'Помилка рушія';
 
   @override
+  String get engineIllegalMove =>
+      'Цей хід неможливий. Можливо, це самогубний хід або порушення правила ко.';
+
+  @override
+  String get engineOccupiedPoint => 'На цьому перетині вже є камінь.';
+
+  @override
+  String get engineInvalidMove =>
+      'Хід має неправильний колір або координату на дошці.';
+
+  @override
+  String engineStartFailed(Object boardSize) {
+    return 'Рушій Ґо не зміг почати гру на дошці $boardSize×$boardSize.';
+  }
+
+  @override
+  String get engineInvalidBoardState =>
+      'Рушій Ґо повернув неправильний стан дошки.';
+
+  @override
+  String engineInvalidMoveResponse(Object move) {
+    return 'Рушій Ґо повернув неправильний хід: $move.';
+  }
+
+  @override
+  String engineInvalidScoreResponse(Object score) {
+    return 'Рушій Ґо повернув неправильну оцінку рахунку: $score.';
+  }
+
+  @override
+  String engineUnexpectedError(Object details) {
+    return 'Рушій Ґо не зміг виконати запит: $details';
+  }
+
+  @override
   String couldNotStartGame(Object error) {
     return 'Не вдалося розпочати гру: $error';
   }

@@ -156,7 +156,9 @@ class _GameScreenState extends State<GameScreen> {
       await _commitMove(_toMove.value, point, await _readBoardState());
       if (!_gameOver.value && _isAiTurn) await _requestAiMove();
     } on GnuGoException catch (error) {
-      if (mounted) _error.value = error.message;
+      if (mounted) {
+        _error.value = _engineErrorMessage(error.message, l10n);
+      }
     } catch (error) {
       if (mounted) _error.value = l10n.moveFailed(error.toString());
     } finally {
@@ -176,7 +178,9 @@ class _GameScreenState extends State<GameScreen> {
       await _commitMove(_toMove.value, null, await _readBoardState());
       if (!_gameOver.value && _isAiTurn) await _requestAiMove();
     } on GnuGoException catch (error) {
-      if (mounted) _error.value = error.message;
+      if (mounted) {
+        _error.value = _engineErrorMessage(error.message, l10n);
+      }
     } catch (error) {
       if (mounted) _error.value = l10n.passFailed(error.toString());
     } finally {
@@ -309,7 +313,9 @@ class _GameScreenState extends State<GameScreen> {
       _gameRoot.setValue('RE', '${match.group(1)}+$margin');
       _status.value = l10n.playerWinsByPoints(_colorName(winner, l10n), margin);
     } on GnuGoException catch (error) {
-      _error.value = l10n.couldNotScoreGame(error.message);
+      _error.value = l10n.couldNotScoreGame(
+        _engineErrorMessage(error.message, l10n),
+      );
       _status.value = l10n.scoringFailed;
     } catch (error) {
       _error.value = l10n.couldNotScoreGame(error.toString());
@@ -347,7 +353,9 @@ class _GameScreenState extends State<GameScreen> {
       _status.value = _toMove.value == 1 ? l10n.blackToPlay : l10n.whiteToPlay;
       if (_isAiTurn) await _requestAiMove();
     } on GnuGoException catch (error) {
-      if (mounted) _error.value = error.message;
+      if (mounted) {
+        _error.value = _engineErrorMessage(error.message, l10n);
+      }
     } catch (error) {
       if (mounted) _error.value = context.l10n.undoFailed(error.toString());
     } finally {
@@ -364,8 +372,46 @@ class _GameScreenState extends State<GameScreen> {
 
   void _showError(String message) {
     if (!mounted) return;
-    _error.value = message;
+    _error.value = _engineErrorMessage(message, context.l10n);
     _status.value = context.l10n.engineError;
+  }
+
+  String _engineErrorMessage(String message, AppLocalizations l10n) {
+    final normalized = message.trim().toLowerCase();
+    if (normalized == 'illegal move') return l10n.engineIllegalMove;
+    if (normalized == 'vertex must not be occupied') {
+      return l10n.engineOccupiedPoint;
+    }
+    if (normalized == 'invalid color or coordinate') {
+      return l10n.engineInvalidMove;
+    }
+    const initializationPrefix = 'GNU Go could not initialize board size ';
+    if (message.startsWith(initializationPrefix)) {
+      return l10n.engineStartFailed(
+        message
+            .substring(initializationPrefix.length)
+            .replaceFirst(RegExp(r'\.$'), ''),
+      );
+    }
+    if (message == 'GNU Go returned an invalid stone list.') {
+      return l10n.engineInvalidBoardState;
+    }
+
+    final invalidMovePrefix = 'GNU Go returned an invalid move: ';
+    if (message.startsWith(invalidMovePrefix)) {
+      return l10n.engineInvalidMoveResponse(
+        message.substring(invalidMovePrefix.length),
+      );
+    }
+
+    final invalidScorePrefix = 'GNU Go returned an invalid score estimate: ';
+    if (message.startsWith(invalidScorePrefix)) {
+      return l10n.engineInvalidScoreResponse(
+        message.substring(invalidScorePrefix.length),
+      );
+    }
+
+    return l10n.engineUnexpectedError(message);
   }
 
   String _gtpColor(int color) => color == 1 ? 'black' : 'white';
@@ -506,23 +552,23 @@ class _GameScreenState extends State<GameScreen> {
                                   .backgroundStrongColor,
                             ),
                           ],
+                          if (error != null) ...[
+                            const SizedBox(height: spacing8),
+                            SelectableText(
+                              error,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: bSSize,
+                                fontWeight: bSWeight,
+                                color: Theme.of(context)
+                                    .extension<AppTheme>()!
+                                    .errorDarkColor,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
-                    if (error != null) ...[
-                      const SizedBox(height: spacing8),
-                      SelectableText(
-                        error,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: bSSize,
-                          fontWeight: bSWeight,
-                          color: Theme.of(context)
-                              .extension<AppTheme>()!
-                              .errorDarkColor,
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: spacing20),
                     Center(
                       child: ConstrainedBox(
