@@ -635,14 +635,14 @@ class _GameScreenState extends State<GameScreen> {
                             SizedBox(
                               width: 180,
                               child: AppTextField(
-                                controller: _blackPlayer,
+                                controller: _whitePlayer,
                                 title: context.l10n.whitePlayer,
                               ),
                             ),
                             SizedBox(
                               width: 180,
                               child: AppTextField(
-                                controller: _blackPlayer,
+                                controller: _gameName,
                                 title: context.l10n.gameNameOptional,
                               ),
                             ),
