@@ -285,21 +285,28 @@ class _GameScreenState extends State<GameScreen> {
   Future<void> _scoreGame() async {
     final l10n = context.l10n;
     try {
-      final result = (await _sendCommand('final_score')).trim();
+      final result = (await _sendCommand('estimate_score')).trim();
       if (result == '0' || result.toLowerCase() == 'jigo') {
         _gameRoot.setValue('RE', '0');
         _status.value = l10n.draw;
         return;
       }
 
-      final match = RegExp(r'^([BW])\+(\d+(?:\.\d+)?)$').firstMatch(result);
+      final match = RegExp(r'^([BW])\+(\d+(?:\.\d+)?)').firstMatch(result);
       if (match == null) {
-        throw GnuGoException('GNU Go returned an invalid final score: $result');
+        throw GnuGoException(
+          'GNU Go returned an invalid score estimate: $result',
+        );
       }
 
       final winner = match.group(1) == 'B' ? 1 : 2;
       final margin = match.group(2)!;
-      _gameRoot.setValue('RE', result);
+      if (double.parse(margin) == 0) {
+        _gameRoot.setValue('RE', '0');
+        _status.value = l10n.draw;
+        return;
+      }
+      _gameRoot.setValue('RE', '${match.group(1)}+$margin');
       _status.value = l10n.playerWinsByPoints(_colorName(winner, l10n), margin);
     } on GnuGoException catch (error) {
       _error.value = l10n.couldNotScoreGame(error.message);

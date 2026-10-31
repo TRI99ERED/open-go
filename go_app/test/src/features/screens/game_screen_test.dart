@@ -107,7 +107,7 @@ void main() {
     expect(commands, contains('genmove black'));
   });
 
-  testWidgets('scores the game after both players pass', (tester) async {
+  testWidgets('estimates the score after both players pass', (tester) async {
     final commands = <String>[];
 
     await tester.pumpWidget(
@@ -120,7 +120,9 @@ void main() {
           engineStart: (boardSize, seed) async {},
           sendCommand: (command) async {
             commands.add(command);
-            return command == 'final_score' ? 'B+2.5' : '';
+            return command == 'estimate_score'
+                ? 'B+2.5 (upper bound: 3.5, lower: 1.5)'
+                : '';
           },
         ),
       ),
@@ -134,7 +136,8 @@ void main() {
     await tester.tap(find.text('Pass'));
     await tester.pumpAndSettle();
 
-    expect(commands, contains('final_score'));
+    expect(commands, contains('estimate_score'));
+    expect(commands, isNot(contains('final_score')));
     expect(find.text('Black wins by 2.5 points'), findsOneWidget);
   });
 
@@ -151,7 +154,9 @@ void main() {
           sendCommand: (command) async {
             commands.add(command);
             if (command == 'genmove white') return 'pass';
-            if (command == 'final_score') return 'B+2.5';
+            if (command == 'estimate_score') {
+              return 'B+2.5 (upper bound: 3.5, lower: 1.5)';
+            }
             return '';
           },
         ),
@@ -179,7 +184,7 @@ void main() {
     await tester.ensureVisible(find.text('Pass'));
     await tester.tap(find.text('Pass'));
     await tester.pumpAndSettle();
-    expect(commands.where((command) => command == 'final_score').length, 2);
+    expect(commands.where((command) => command == 'estimate_score').length, 2);
   });
 }
 
