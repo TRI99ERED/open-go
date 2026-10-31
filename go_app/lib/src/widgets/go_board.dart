@@ -77,7 +77,7 @@ class GoBoard extends StatelessWidget {
                 labels: labels,
                 labelColor: Theme.of(context)
                     .extension<AppTheme>()!
-                    .highlightMediumColor,
+                    .highlightDarkestColor,
               ),
             ),
           ),
