@@ -67,16 +67,18 @@ final class AppController extends BaseController<AppState> {
               tsumegos: state.tsumegos,
             ),
           );
-          final file = await FilePicker.pickFile(
+          final files = await FilePicker.pickFiles(
             dialogTitle: 'Import tsumego SGF',
             type: FileType.custom,
             allowedExtensions: const ['sgf'],
           );
-          if (file == null) return;
-          final source = utf8.decode(await file.readAsBytes());
-          final collection = SgfCollection.parse(source);
+          if (files.isEmpty) return;
           final games = state.tsumegos.games;
-          games.addAll(collection.games);
+          for (final file in files) {
+            final source = utf8.decode(await file.readAsBytes());
+            final collection = SgfCollection.parse(source);
+            games.addAll(collection.games);
+          }
           setState(
             AppState.idle(
               message: 'Successfully imported tsumegos',
