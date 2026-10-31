@@ -181,9 +181,6 @@ class _AppDropdownState extends State<AppDropdown> {
     final spaceAbove = offset.dy;
 
     final showAbove = spaceBelow < maxOverlayHeight && spaceAbove > spaceBelow;
-    final overlayOffset = showAbove
-        ? Offset(0, -(maxOverlayHeight + 4))
-        : Offset(0, size.height + 4);
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
@@ -199,7 +196,11 @@ class _AppDropdownState extends State<AppDropdown> {
           CompositedTransformFollower(
             link: _layerLink,
             showWhenUnlinked: false,
-            offset: overlayOffset,
+            targetAnchor: showAbove ? Alignment.topLeft : Alignment.bottomLeft,
+            followerAnchor: showAbove
+                ? Alignment.bottomLeft
+                : Alignment.topLeft,
+            offset: Offset(0, showAbove ? -4 : 4),
             child: GestureDetector(
               onTap: () {},
               child: Material(

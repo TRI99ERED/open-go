@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opengo/l10n/app_localizations.dart';
 import 'package:opengo/src/core/game/go_position.dart';
 import 'package:opengo/src/core/game/sgf.dart';
 import 'package:opengo/src/features/app/app_controller/app_controller.dart';
@@ -25,16 +26,21 @@ void main() {
 
     final appController = AppController();
     final themeMode = ValueNotifier(ThemeMode.system);
+    final locale = ValueNotifier<Locale?>(null);
     final fullscreenMode = ValueNotifier(false);
     addTearDown(appController.dispose);
     addTearDown(themeMode.dispose);
+    addTearDown(locale.dispose);
     addTearDown(fullscreenMode.dispose);
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: AppScope(
           appController: appController,
           themeMode: themeMode,
+          locale: locale,
           fullscreenMode: fullscreenMode,
           onFullscreenModeChanged: (value) async {
             fullscreenMode.value = value;

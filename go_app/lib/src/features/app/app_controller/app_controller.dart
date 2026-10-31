@@ -57,7 +57,7 @@ final class AppController extends BaseController<AppState> {
         }
       });
 
-  Future<void> importTsumegos() async =>
+  Future<void> importTsumegos({required String dialogTitle}) async =>
       await serialExecutor.synchronized(() async {
         try {
           setState(
@@ -68,7 +68,7 @@ final class AppController extends BaseController<AppState> {
             ),
           );
           final files = await FilePicker.pickFiles(
-            dialogTitle: 'Import tsumego SGF',
+            dialogTitle: dialogTitle,
             type: FileType.custom,
             allowedExtensions: const ['sgf'],
           );

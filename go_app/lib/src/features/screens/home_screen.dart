@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opengo/src/core/localization/localization.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/features/themes/styles.dart';
 import 'package:opengo/src/router/app_navigator.dart';
@@ -20,7 +21,7 @@ class HomeScreen extends StatelessWidget {
         child: Builder(
           builder: (context) {
             return AppNavBar(
-              title: 'Home',
+              title: context.l10n.home,
               leftIcon: Icons.menu,
               onPressedLeft: () {
                 Scaffold.of(context).openDrawer();
@@ -32,9 +33,9 @@ class HomeScreen extends StatelessWidget {
       drawer: AppDrawer(
         child: ListView(
           children: [
-            const AppListTitle(title: 'OpenGo'),
+            AppListTitle(title: context.l10n.openGo),
             AppListItem(
-              title: 'Settings',
+              title: context.l10n.settings,
               icon: Icons.settings,
               onPressed: () {
                 Navigator.of(context).pop();
@@ -50,7 +51,7 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.all(spacing24),
             children: [
               Text(
-                'Play Go your way',
+                context.l10n.playGoYourWay,
                 style: TextStyle(
                   fontSize: h1Size,
                   fontWeight: h1Weight,
@@ -62,7 +63,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: spacing8),
               Text(
-                'Play, study problems, review or keep game records.',
+                context.l10n.homeDescription,
                 style: TextStyle(
                   fontSize: h5Size,
                   fontWeight: h5Weight,
@@ -75,7 +76,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: spacing24),
               AppButtonPrimary(
                 leftIcon: Icons.sports_esports,
-                text: 'Play',
+                text: context.l10n.play,
                 onPressed: () {
                   AppNavigator.of(context).push(GamePage());
                 },
@@ -83,7 +84,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: spacing8),
               AppButtonSecondary(
                 leftIcon: Icons.extension,
-                text: 'Solve',
+                text: context.l10n.solve,
                 onPressed: () {
                   AppNavigator.of(context).push(TsumegosPage());
                 },
@@ -91,7 +92,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: spacing8),
               AppButtonSecondary(
                 leftIcon: Icons.menu_book,
-                text: 'Review',
+                text: context.l10n.review,
                 onPressed: () {
                   AppNavigator.of(context).push(ReviewPage());
                 },

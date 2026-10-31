@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../core/game/go_position.dart';
+import '../core/localization/localization.dart';
 
 class GoBoard extends StatelessWidget {
   final int boardSize;
@@ -18,7 +19,7 @@ class GoBoard extends StatelessWidget {
     super.key,
   });
 
-  String get _semanticsLabel {
+  String _semanticsLabel(BuildContext context) {
     String describe(int color) {
       final vertices = <String>[];
       for (var point = 0; point < stones.length; point++) {
@@ -27,15 +28,18 @@ class GoBoard extends StatelessWidget {
         final column = point % boardSize;
         vertices.add('${goColumnLabels[column]}${boardSize - row}');
       }
-      return vertices.isEmpty ? 'none' : vertices.join(', ');
+      return vertices.isEmpty ? context.l10n.none : vertices.join(', ');
     }
 
-    return 'Go board. Black stones: ${describe(1)}. White stones: ${describe(2)}.';
+    return context.l10n.goBoardSemantics(
+      describe(1),
+      describe(2),
+    );
   }
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: _semanticsLabel,
+    label: _semanticsLabel(context),
     child: LayoutBuilder(
       builder: (context, constraints) {
         final dimension = constraints.maxWidth.isFinite

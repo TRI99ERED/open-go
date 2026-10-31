@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:opengo/l10n/app_localizations.dart';
 
 import 'src/features/app/app_controller/app_controller.dart';
 import 'src/features/app/app_scope.dart';
@@ -65,6 +66,7 @@ class _AppState extends State<App> {
     ),
   );
   final _themeMode = ValueNotifier<ThemeMode>(ThemeMode.system);
+  final _locale = ValueNotifier<Locale?>(null);
   final _fullscreenMode = ValueNotifier<bool>(false);
 
   late final AppController _appController;
@@ -108,19 +110,26 @@ class _AppState extends State<App> {
     return ValueListenableBuilder(
       valueListenable: _themeMode,
       builder: (context, value, child) {
-        return MaterialApp.router(
-          title: 'Open Go',
-          theme: _lightTheme,
-          darkTheme: _darkTheme,
-          themeMode: _themeMode.value,
-          routerDelegate: _routerDelegate,
-          routeInformationParser: _routeParser,
-          builder: (context, child) => AppScope(
-            appController: _appController,
-            themeMode: _themeMode,
-            fullscreenMode: _fullscreenMode,
-            onFullscreenModeChanged: _setFullscreenMode,
-            child: child ?? const SplashScreen(),
+        return ValueListenableBuilder<Locale?>(
+          valueListenable: _locale,
+          builder: (context, locale, child) => MaterialApp.router(
+            onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: locale,
+            theme: _lightTheme,
+            darkTheme: _darkTheme,
+            themeMode: _themeMode.value,
+            routerDelegate: _routerDelegate,
+            routeInformationParser: _routeParser,
+            builder: (context, child) => AppScope(
+              appController: _appController,
+              themeMode: _themeMode,
+              locale: _locale,
+              fullscreenMode: _fullscreenMode,
+              onFullscreenModeChanged: _setFullscreenMode,
+              child: child ?? const SplashScreen(),
+            ),
           ),
         );
       },
@@ -132,6 +141,7 @@ class _AppState extends State<App> {
     _appController.removeListener(_rebuild);
     _appController.dispose();
     _themeMode.dispose();
+    _locale.dispose();
     _fullscreenMode.dispose();
     super.dispose();
   }

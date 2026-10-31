@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opengo/src/core/localization/localization.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/features/themes/styles.dart';
 
@@ -94,7 +95,7 @@ class _AppMessageInputState extends State<AppMessageInput> {
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.send,
             decoration: InputDecoration(
-              hintText: 'Type a message...',
+              hintText: context.l10n.typeMessage,
               contentPadding: const EdgeInsets.symmetric(
                 vertical: spacing8,
                 horizontal: spacing16,

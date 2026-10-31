@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:opengo/src/core/localization/localization.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/features/themes/styles.dart';
 import 'package:opengo/src/widgets/common/app_accordion.dart';
@@ -129,9 +130,9 @@ class _AppFilterMenuState extends State<AppFilterMenu> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppNavBar(
-        title: 'Filter',
-        leftText: 'Cancel',
-        rightText: 'Clear All',
+        title: context.l10n.filter,
+        leftText: context.l10n.cancel,
+        rightText: context.l10n.clearAll,
         onPressedLeft: () {
           Navigator.of(context).pop();
         },
@@ -215,7 +216,7 @@ class _AppFilterMenuState extends State<AppFilterMenu> {
               child: SizedBox(
                 width: double.infinity,
                 child: AppButtonPrimary(
-                  text: 'Apply Filters',
+                  text: context.l10n.applyFilters,
                   onPressed: () {
                     // Deep copy to avoid mutating original sets
                     widget.filters.value = _internalFilters.value.map(

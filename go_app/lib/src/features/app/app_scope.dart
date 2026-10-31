@@ -6,6 +6,7 @@ class AppScope extends StatefulWidget {
   final Widget child;
   final AppController appController;
   final ValueNotifier<ThemeMode> themeMode;
+  final ValueNotifier<Locale?> locale;
   final ValueNotifier<bool> fullscreenMode;
   final Future<void> Function(bool) onFullscreenModeChanged;
 
@@ -14,6 +15,7 @@ class AppScope extends StatefulWidget {
     required this.child,
     required this.appController,
     required this.themeMode,
+    required this.locale,
     required this.fullscreenMode,
     required this.onFullscreenModeChanged,
   });
@@ -51,6 +53,7 @@ class _AppScopeState extends State<AppScope> {
       appController: _appController,
       appState: _appState,
       themeMode: widget.themeMode,
+      locale: widget.locale,
       fullscreenMode: widget.fullscreenMode,
       onFullscreenModeChanged: widget.onFullscreenModeChanged,
       child: widget.child,
@@ -68,6 +71,7 @@ class InheritedScopeWidget extends InheritedWidget {
   final AppController appController;
   final AppState appState;
   final ValueNotifier<ThemeMode> themeMode;
+  final ValueNotifier<Locale?> locale;
   final ValueNotifier<bool> fullscreenMode;
   final Future<void> Function(bool) onFullscreenModeChanged;
   const InheritedScopeWidget({
@@ -75,6 +79,7 @@ class InheritedScopeWidget extends InheritedWidget {
     required this.appController,
     required this.appState,
     required this.themeMode,
+    required this.locale,
     required this.fullscreenMode,
     required this.onFullscreenModeChanged,
     required super.child,
@@ -97,6 +102,7 @@ class InheritedScopeWidget extends InheritedWidget {
   bool updateShouldNotify(InheritedScopeWidget oldWidget) {
     return appState != oldWidget.appState ||
         themeMode != oldWidget.themeMode ||
+        locale != oldWidget.locale ||
         fullscreenMode != oldWidget.fullscreenMode ||
         onFullscreenModeChanged != oldWidget.onFullscreenModeChanged;
   }
@@ -109,6 +115,8 @@ extension AppScopeExtension on BuildContext {
       dependOnInheritedWidgetOfExactType<InheritedScopeWidget>()!.appController;
   ValueNotifier<ThemeMode> get themeMode =>
       dependOnInheritedWidgetOfExactType<InheritedScopeWidget>()!.themeMode;
+  ValueNotifier<Locale?> get locale =>
+      dependOnInheritedWidgetOfExactType<InheritedScopeWidget>()!.locale;
   ValueNotifier<bool> get fullscreenMode =>
       dependOnInheritedWidgetOfExactType<InheritedScopeWidget>()!.fullscreenMode;
   Future<void> setFullscreenMode(bool value) =>

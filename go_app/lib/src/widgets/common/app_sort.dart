@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:opengo/src/core/localization/localization.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/features/themes/styles.dart';
 import 'package:opengo/src/widgets/common/app_accordion.dart';
@@ -132,9 +133,9 @@ class _AppSortMenuState extends State<AppSortMenu> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppNavBar(
-        title: 'Sort',
-        leftText: 'Cancel',
-        rightText: 'Default',
+        title: context.l10n.sort,
+        leftText: context.l10n.cancel,
+        rightText: context.l10n.defaultAction,
         onPressedLeft: () {
           Navigator.of(context).pop();
         },
@@ -157,7 +158,7 @@ class _AppSortMenuState extends State<AppSortMenu> {
               child: ListView(
                 children: [
                   Text(
-                    'Sort Order',
+                    context.l10n.sortOrder,
                     style: TextStyle(
                       fontSize: bMSize,
                       fontWeight: bMWeight,
@@ -175,7 +176,7 @@ class _AppSortMenuState extends State<AppSortMenu> {
                         runSpacing: spacing8,
                         children: [
                           AppTag(
-                            text: 'DESCENDING',
+                            text: context.l10n.descending,
                             isSelected:
                                 _internalSortOrder.value ==
                                 SortOrder.descending,
@@ -186,7 +187,7 @@ class _AppSortMenuState extends State<AppSortMenu> {
                             },
                           ),
                           AppTag(
-                            text: 'ASCENDING',
+                            text: context.l10n.ascending,
                             isSelected:
                                 _internalSortOrder.value == SortOrder.ascending,
                             onChanged: (value) {
@@ -205,7 +206,7 @@ class _AppSortMenuState extends State<AppSortMenu> {
                     valueListenable: _internalSortOption,
                     builder: (context, value, child) {
                       return AppAccordion(
-                        title: 'Sort By',
+                        title: context.l10n.sortBy,
                         children: [
                           Wrap(
                             spacing: spacing8,
@@ -241,7 +242,7 @@ class _AppSortMenuState extends State<AppSortMenu> {
               child: SizedBox(
                 width: double.infinity,
                 child: AppButtonPrimary(
-                  text: 'Apply sort',
+                  text: context.l10n.applySort,
                   onPressed: () {
                     widget.sortOption.value = _internalSortOption.value;
                     widget.sortOrder.value = _internalSortOrder.value;

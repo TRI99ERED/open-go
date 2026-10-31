@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:opengo/src/core/game/go_position.dart';
+import 'package:opengo/src/core/localization/localization.dart';
 import 'package:opengo/src/core/game/sgf.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/widgets/common/app_badge.dart';
@@ -58,7 +59,7 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
   Future<void> _openSgf() async {
     try {
       final file = await FilePicker.pickFile(
-        dialogTitle: 'Open SGF game record',
+        dialogTitle: context.l10n.openSgfGameRecord,
         type: FileType.custom,
         allowedExtensions: const ['sgf'],
       );
@@ -72,7 +73,9 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
       _sourceName.value = file.name;
       _error.value = null;
     } catch (error) {
-      if (mounted) _error.value = 'Could not open SGF: $error';
+      if (mounted) {
+        _error.value = context.l10n.couldNotOpenSgf(error.toString());
+      }
     }
   }
 
@@ -91,7 +94,7 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
                 ListTile(
                   leading: const Icon(Icons.alt_route),
                   title: Text(_variationLabel(node.children[index])),
-                  subtitle: Text('Variation ${index + 1}'),
+                  subtitle: Text(context.l10n.variation(index + 1)),
                   onTap: () => Navigator.pop(context, index),
                 ),
             ],
@@ -106,16 +109,16 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
 
   String _variationLabel(SgfNode node) {
     final color = node.firstValue('B') != null
-        ? 'Black'
+        ? context.l10n.black
         : node.firstValue('W') != null
-        ? 'White'
-        : 'Setup';
+        ? context.l10n.white
+        : context.l10n.setup;
     final value = node.firstValue('B') ?? node.firstValue('W');
     if (value == null) return color;
-    if (value.isEmpty) return '$color passes';
+    if (value.isEmpty) return context.l10n.playerPasses(color);
     final size = int.tryParse(_root?.firstValue('SZ') ?? '19') ?? 19;
     final point = GoPosition.empty(size).pointFromSgf(value);
-    if (point == null) return '$color passes';
+    if (point == null) return context.l10n.playerPasses(color);
     final row = point ~/ size;
     final column = point % size;
     return '$color ${goColumnLabels[column]}${size - row}';
@@ -166,7 +169,7 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppNavBar(
-        title: 'Review SGF',
+        title: context.l10n.reviewSgf,
         rightIcon: Icons.folder_open,
         onPressedRight: _openSgf,
         leftIcon: Icons.arrow_back_ios_new,
@@ -198,10 +201,10 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
               return Column(
                 children: [
                   if (collection == null)
-                    const Padding(
-                      padding: EdgeInsets.all(24),
+                    Padding(
+                      padding: const EdgeInsets.all(24),
                       child: Text(
-                        'Open an SGF file to review its game, comments, and variations.',
+                        context.l10n.openSgfReviewDescription,
                         textAlign: TextAlign.center,
                       ),
                     )
@@ -217,7 +220,7 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
                           )
                             DropdownMenuEntry(
                               value: '$index',
-                              label: 'Game ${index + 1}',
+                              label: context.l10n.gameNumber(index + 1),
                             ),
                         ],
                         onSelected: (v) => _selectGame(v.$2),
@@ -227,8 +230,13 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
                     if (position != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Move ${path.length} / ${_mainLineLength(root!)}'
-                        '${position.toMove == 1 ? ' · Black to play' : ' · White to play'}',
+                        context.l10n.moveProgress(
+                          path.length,
+                          _mainLineLength(root!),
+                          position.toMove == 1
+                              ? context.l10n.black
+                              : context.l10n.white,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Center(
@@ -249,7 +257,7 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
                         spacing: 12,
                         children: [
                           IconButton(
-                            tooltip: 'Previous move',
+                            tooltip: context.l10n.previousMove,
                             onPressed: path.isEmpty ? null : _previous,
                             style: IconButton.styleFrom(
                               foregroundColor: Theme.of(context)
@@ -259,7 +267,9 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
                             icon: const Icon(Icons.skip_previous),
                           ),
                           IconButton(
-                            tooltip: playback == null ? 'Play' : 'Pause',
+                            tooltip: playback == null
+                                ? context.l10n.play
+                                : context.l10n.pause,
                             onPressed: _togglePlayback,
                             style: IconButton.styleFrom(
                               foregroundColor: Theme.of(context)
@@ -271,7 +281,7 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
                             ),
                           ),
                           IconButton(
-                            tooltip: 'Next move / choose variation',
+                            tooltip: context.l10n.nextMoveChooseVariation,
                             onPressed: _currentNode?.children.isEmpty ?? true
                                 ? null
                                 : _advance,
@@ -319,21 +329,22 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
   }
 
   Widget _metadata(SgfNode root) {
-    const properties = {
-      'GN': 'Game',
-      'PB': 'Black',
-      'PW': 'White',
-      'DT': 'Date',
-      'RE': 'Result',
-      'KM': 'Komi',
-      'RU': 'Rules',
-      'EV': 'Event',
+    final l10n = context.l10n;
+    final properties = {
+      'GN': l10n.game,
+      'PB': l10n.black,
+      'PW': l10n.white,
+      'DT': l10n.date,
+      'RE': l10n.result,
+      'KM': l10n.komi,
+      'RU': l10n.rules,
+      'EV': l10n.event,
     };
     final entries = [
       for (final entry in properties.entries)
         if (root.firstValue(entry.key) case final value? when value.isNotEmpty)
           '${entry.value}: $value',
-      'Board: ${root.firstValue('SZ') ?? '19'}×${root.firstValue('SZ') ?? '19'}',
+      l10n.boardSize(int.tryParse(root.firstValue('SZ') ?? '19') ?? 19),
     ];
     return Text(entries.join('  ·  '), textAlign: TextAlign.center);
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opengo/src/core/game/go_position.dart';
+import 'package:opengo/src/core/localization/localization.dart';
 import 'package:opengo/src/core/game/sgf.dart';
 import 'package:opengo/src/core/widgets/controller_consumer.dart';
 import 'package:opengo/src/features/app/app_scope.dart';
@@ -22,7 +23,7 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
   final _cursor = ValueNotifier<SgfNode?>(null);
   final _position = ValueNotifier<GoPosition?>(null);
   final _mistakes = ValueNotifier(0);
-  final _status = ValueNotifier('Loading problems…');
+  final _status = ValueNotifier('');
   final _solved = ValueNotifier(false);
   bool _initialized = false;
   bool _requestedLoad = false;
@@ -32,16 +33,19 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
     super.didChangeDependencies();
     final appState = context.appState;
     final problems = appState.tsumegos.games;
+    if (_status.value.isEmpty) {
+      _status.value = context.l10n.loadingProblems;
+    }
 
     if (problems.isNotEmpty && !_initialized) {
       _initialized = true;
       if (widget.index < 0 || widget.index >= problems.length) {
-        _status.value = 'Problem ${widget.index + 1} is unavailable.';
+        _status.value = context.l10n.problemUnavailable(widget.index + 1);
       } else {
         _resetProblem(widget.index);
       }
     } else if (problems.isEmpty && appState.isFailed) {
-      _status.value = 'Could not load problems: ${appState.error}';
+      _status.value = context.l10n.failedToLoadProblems;
     } else if (problems.isEmpty && !appState.isProcessing && !_requestedLoad) {
       _requestedLoad = true;
       context.appController.loadTsumegos();
@@ -54,7 +58,7 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
     if (index < 0 || index >= problems.length) {
       _position.value = null;
       _cursor.value = null;
-      _status.value = 'Problem ${index + 1} is unavailable.';
+      _status.value = context.l10n.problemUnavailable(index + 1);
       return;
     }
 
@@ -68,9 +72,9 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
       ).withToMove(_initialPlayer(problem));
       _mistakes.value = 0;
       _solved.value = false;
-      _status.value = 'Find the solution.';
+      _status.value = context.l10n.findSolution;
     } catch (error) {
-      _status.value = 'Invalid problem SGF: $error';
+      _status.value = context.l10n.invalidProblemSgf(error.toString());
     }
   }
 
@@ -107,7 +111,7 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
 
     if (matchingMove == null) {
       _mistakes.value++;
-      _status.value = 'That move is not in the solution. Try another move.';
+      _status.value = context.l10n.incorrectMove;
       return;
     }
 
@@ -143,8 +147,8 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
     _position.value = nextPosition;
     _solved.value = solved;
     _status.value = solved
-        ? 'Solved! You found the solution.'
-        : 'Correct. Continue the sequence.';
+        ? context.l10n.solvedProblem
+        : context.l10n.correctContinue;
   }
 
   bool _containsAcceptedSolution(SgfNode node) =>
@@ -180,14 +184,14 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
     if (name != null && name.isNotEmpty) {
       return '$name${details.isEmpty ? '' : ' · $details'}';
     }
-    return 'Problem ${index + 1}';
+    return context.l10n.problemNumber(index + 1);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppNavBar(
-        title: 'Tsumegos',
+        title: context.l10n.tsumego,
         leftIcon: Icons.arrow_back_ios_new,
         onPressedLeft: () => Navigator.of(context).pop(),
       ),
@@ -222,33 +226,16 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
                           index >= 0 && index < problems.length;
                       return Column(
                         children: [
-                          if (problems.isNotEmpty)
-                            AppDropdown(
-                              selectedIndex: index,
-                              text: hasSelectedProblem
-                                  ? _problemLabel(problems[index], index)
-                                  : null,
-                              items: [
-                                for (var i = 0; i < problems.length; i++)
-                                  DropdownMenuEntry(
-                                    value: '$i',
-                                    label: _problemLabel(problems[i], i),
-                                  ),
-                              ],
-                              onSelected: (selection) =>
-                                  _selectProblem(selection.$2),
-                            ),
-                          const SizedBox(height: 8),
-                          if (problems.isEmpty)
-                            Text(status, textAlign: TextAlign.center),
                           if (position != null)
                             Text(
-                              '${position.toMove == 1 ? 'Black' : 'White'} to play',
+                              position.toMove == 1
+                                  ? context.l10n.blackToPlay
+                                  : context.l10n.whiteToPlay,
                             ),
                           if (problems.isNotEmpty)
                             Text(status, textAlign: TextAlign.center),
                           if (mistakes > 0)
-                            Text('Incorrect attempts: $mistakes'),
+                            Text(context.l10n.incorrectAttempts(mistakes)),
                           if (position != null) ...[
                             const SizedBox(height: 14),
                             Center(
@@ -275,14 +262,14 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
                             children: [
                               AppButtonSecondary(
                                 leftIcon: Icons.refresh,
-                                text: 'Try again',
+                                text: context.l10n.tryAgain,
                                 onPressed: _resetProblem,
                               ),
                               if (context.appState.tsumegos.games.length >
                                   index + 1)
                                 AppButtonPrimary(
                                   leftIcon: Icons.navigate_next,
-                                  text: 'Next',
+                                  text: context.l10n.next,
                                   onPressed: () {
                                     _problemIndex.value++;
                                     _selectProblem(_problemIndex.value);
@@ -290,6 +277,25 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
                                 ),
                             ],
                           ),
+                          const SizedBox(height: 8),
+                          if (problems.isNotEmpty)
+                            AppDropdown(
+                              selectedIndex: index,
+                              text: hasSelectedProblem
+                                  ? _problemLabel(problems[index], index)
+                                  : null,
+                              items: [
+                                for (var i = 0; i < problems.length; i++)
+                                  DropdownMenuEntry(
+                                    value: '$i',
+                                    label: _problemLabel(problems[i], i),
+                                  ),
+                              ],
+                              onSelected: (selection) =>
+                                  _selectProblem(selection.$2),
+                            ),
+                          if (problems.isEmpty)
+                            Text(status, textAlign: TextAlign.center),
                         ],
                       );
                     },

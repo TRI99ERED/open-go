@@ -30,6 +30,35 @@ void main() {
     expect(tester.widget<AppCheckbox>(find.byType(AppCheckbox)).value, isFalse);
   });
 
+  testWidgets('language setting switches locales and follows the system', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const App());
+
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Language'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('System default'), findsOneWidget);
+    expect(find.text('English'), findsOneWidget);
+    expect(find.text('Українська'), findsOneWidget);
+
+    await tester.tap(find.text('Українська'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Налаштування'), findsOneWidget);
+    expect(find.text('Мова'), findsOneWidget);
+
+    await tester.tap(find.text('За системою'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Language'), findsOneWidget);
+  });
+
   testWidgets('fullscreen setting calls the Windows window channel', (
     tester,
   ) async {

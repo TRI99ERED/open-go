@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opengo/l10n/app_localizations.dart';
 import 'package:opengo/src/features/screens/game_screen.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/widgets/common/app_dropdown.dart';
@@ -12,6 +13,8 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(extensions: const [AppTheme()]),
         home: GameScreen(
           engineStart: (boardSize, seed) async {},
@@ -33,6 +36,8 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(extensions: const [AppTheme()]),
         home: GameScreen(
           engineStart: (boardSize, seed) async => boardSizes.add(boardSize),
@@ -58,6 +63,8 @@ void main() {
   ) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(extensions: const [AppTheme()]),
         home: const GameScreen(
           autoStart: false,
@@ -81,6 +88,8 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(extensions: const [AppTheme()]),
         home: GameScreen(
           engineStart: (boardSize, seed) async {},
@@ -103,6 +112,8 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(extensions: const [AppTheme()]),
         home: GameScreen(
           initialMode: GameMode.passAndPlay,
@@ -132,6 +143,8 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(extensions: const [AppTheme()]),
         home: GameScreen(
           engineStart: (boardSize, seed) async {},

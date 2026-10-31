@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opengo/src/core/localization/localization.dart';
 import 'package:opengo/src/core/widgets/controller_listener.dart';
 import 'package:opengo/src/features/app/app_scope.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
@@ -24,13 +25,18 @@ class SettingsScreen extends StatelessWidget {
         return false;
       },
       listener: (context, previous, current) {
+        final message = switch (current.message) {
+          'Could not load tsumegos' => context.l10n.failedToLoadProblems,
+          'Could not import tsumegos' => context.l10n.couldNotImportProblems,
+          _ => current.message,
+        };
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Theme.of(context)
                 .extension<AppTheme>()
                 ?.backgroundStrongColor,
             content: Text(
-              'Error: ${current.message}',
+              context.l10n.errorWithMessage(message),
               style: TextStyle(
                 fontSize: cMSize,
                 fontWeight: cMWeight,
@@ -44,7 +50,7 @@ class SettingsScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppNavBar(
-          title: 'Settings',
+          title: context.l10n.settings,
           leftIcon: Icons.arrow_back_ios_new,
           onPressedLeft: () {
             AppNavigator.of(context).pop();
@@ -54,9 +60,9 @@ class SettingsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(spacing16),
           children: [
             AppAccordion(
-              title: 'Appearance',
+              title: context.l10n.appearance,
               children: [
-                const AppListTitle(title: 'Theme'),
+                AppListTitle(title: context.l10n.theme),
                 ValueListenableBuilder(
                   valueListenable: context.themeMode,
                   builder: (context, value, child) {
@@ -71,21 +77,21 @@ class SettingsScreen extends StatelessWidget {
                         children: [
                           AppRadioTile(
                             value: ThemeMode.system,
-                            title: 'System',
+                            title: context.l10n.system,
                             onChanged: (value) {
                               context.themeMode.value = value;
                             },
                           ),
                           AppRadioTile(
                             value: ThemeMode.light,
-                            title: 'Light',
+                            title: context.l10n.light,
                             onChanged: (value) {
                               context.themeMode.value = value;
                             },
                           ),
                           AppRadioTile(
                             value: ThemeMode.dark,
-                            title: 'Dark',
+                            title: context.l10n.dark,
                             onChanged: (value) {
                               context.themeMode.value = value;
                             },
@@ -100,7 +106,7 @@ class SettingsScreen extends StatelessWidget {
                   builder: (context, value, child) {
                     return AppCheckboxTile(
                       value: value,
-                      title: 'Fullscreen',
+                      title: context.l10n.fullscreen,
                       onChanged: (value) async {
                         if (value == null) return;
                         try {
@@ -110,12 +116,55 @@ class SettingsScreen extends StatelessWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                'Unable to change fullscreen mode: $error',
+                                context.l10n.unableToChangeFullscreen(
+                                  error.toString(),
+                                ),
                               ),
                             ),
                           );
                         }
                       },
+                    );
+                  },
+                ),
+              ],
+            ),
+            AppAccordion(
+              title: context.l10n.language,
+              children: [
+                ValueListenableBuilder<Locale?>(
+                  valueListenable: context.locale,
+                  builder: (context, value, child) {
+                    return RadioGroup<Locale?>(
+                      groupValue: value,
+                      onChanged: (locale) {
+                        context.locale.value = locale;
+                      },
+                      child: Column(
+                        children: [
+                          AppRadioTile<Locale?>(
+                            value: null,
+                            title: context.l10n.languageSystem,
+                            onChanged: (locale) {
+                              context.locale.value = locale;
+                            },
+                          ),
+                          AppRadioTile<Locale?>(
+                            value: const Locale('en'),
+                            title: context.l10n.languageEnglish,
+                            onChanged: (locale) {
+                              context.locale.value = locale;
+                            },
+                          ),
+                          AppRadioTile<Locale?>(
+                            value: const Locale('uk'),
+                            title: context.l10n.languageUkrainian,
+                            onChanged: (locale) {
+                              context.locale.value = locale;
+                            },
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),

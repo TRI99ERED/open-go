@@ -4,8 +4,10 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gnugo_ffi/gnugo_ffi.dart';
+import 'package:opengo/l10n/app_localizations.dart';
 import 'package:opengo/src/core/game/go_position.dart';
 import 'package:opengo/src/core/game/sgf.dart';
+import 'package:opengo/src/core/localization/localization.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/features/themes/styles.dart';
 import 'package:opengo/src/widgets/common/app_accordion.dart';
@@ -48,14 +50,15 @@ class _GameScreenState extends State<GameScreen> {
   final _consecutivePasses = ValueNotifier(0);
   final _gameOver = ValueNotifier(false);
   final _busy = ValueNotifier(false);
-  final _status = ValueNotifier('Black to play');
+  final _status = ValueNotifier('');
   final _error = ValueNotifier<String?>(null);
   final _recordMessage = ValueNotifier<String?>(null);
-  final _blackPlayer = TextEditingController(text: 'Black');
-  final _whitePlayer = TextEditingController(text: 'White');
+  final _blackPlayer = TextEditingController();
+  final _whitePlayer = TextEditingController();
   final _gameName = TextEditingController();
   final List<SgfNode> _recordedMoves = [];
   late SgfNode _gameRoot = _createSgfRoot();
+  bool _initializedPlayerNames = false;
 
   int get _aiColor => 3 - _humanColor.value;
   bool get _isAiTurn =>
@@ -79,6 +82,16 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initializedPlayerNames) {
+      _blackPlayer.text = context.l10n.black;
+      _whitePlayer.text = context.l10n.white;
+      _initializedPlayerNames = true;
+    }
+  }
+
   Future<void> _startEngine(int boardSize, int seed) =>
       widget.engineStart?.call(boardSize, seed) ??
       _engine.value.start(boardSize, seed: seed);
@@ -87,9 +100,10 @@ class _GameScreenState extends State<GameScreen> {
       widget.sendCommand?.call(command) ?? _engine.value.command(command);
 
   Future<void> _startNewGame() async {
+    final l10n = context.l10n;
     _busy.value = true;
     _error.value = null;
-    _status.value = 'Starting GNU Go…';
+    _status.value = l10n.startingGnuGo;
 
     try {
       await _startEngine(
@@ -110,7 +124,7 @@ class _GameScreenState extends State<GameScreen> {
       _consecutivePasses.value = 0;
       _gameOver.value = false;
       _recordMessage.value = null;
-      _status.value = 'Black to play';
+      _status.value = l10n.blackToPlay;
 
       if (_isAiTurn) {
         await _requestAiMove();
@@ -118,7 +132,7 @@ class _GameScreenState extends State<GameScreen> {
     } on GnuGoException catch (error) {
       _showError(error.message);
     } catch (error) {
-      _showError('Could not start the game: $error');
+      _showError(l10n.couldNotStartGame(error.toString()));
     } finally {
       if (mounted) setState(() => _busy.value = false);
     }
@@ -129,6 +143,7 @@ class _GameScreenState extends State<GameScreen> {
     if (point < 0 || point >= _board.value.length) return;
     if (_board.value[point] != 0) return;
 
+    final l10n = context.l10n;
     _busy.value = true;
     _error.value = null;
 
@@ -142,7 +157,7 @@ class _GameScreenState extends State<GameScreen> {
     } on GnuGoException catch (error) {
       if (mounted) _error.value = error.message;
     } catch (error) {
-      if (mounted) _error.value = 'Move failed: $error';
+      if (mounted) _error.value = l10n.moveFailed(error.toString());
     } finally {
       if (mounted) _busy.value = false;
     }
@@ -151,6 +166,7 @@ class _GameScreenState extends State<GameScreen> {
   Future<void> _pass() async {
     if (_busy.value || _gameOver.value || _isAiTurn) return;
 
+    final l10n = context.l10n;
     _busy.value = true;
     _error.value = null;
 
@@ -161,13 +177,14 @@ class _GameScreenState extends State<GameScreen> {
     } on GnuGoException catch (error) {
       if (mounted) _error.value = error.message;
     } catch (error) {
-      if (mounted) _error.value = 'Pass failed: $error';
+      if (mounted) _error.value = l10n.passFailed(error.toString());
     } finally {
       if (mounted) _busy.value = false;
     }
   }
 
   Future<void> _requestAiMove() async {
+    final l10n = context.l10n;
     final color = _toMove.value;
     final response = await _sendCommand('genmove ${_gtpColor(color)}');
     if (response.toLowerCase() == 'resign') {
@@ -175,8 +192,10 @@ class _GameScreenState extends State<GameScreen> {
         final winner = 3 - color;
         _gameOver.value = true;
         _gameRoot.setValue('RE', '${winner == 1 ? 'B' : 'W'}+R');
-        _status.value =
-            '${_colorName(color)} resigns — ${_colorName(winner)} wins';
+        _status.value = l10n.playerResignsWinner(
+          _colorName(color, l10n),
+          _colorName(winner, l10n),
+        );
       }
       return;
     }
@@ -253,19 +272,22 @@ class _GameScreenState extends State<GameScreen> {
     _toMove.value = 3 - color;
     _gameOver.value = _consecutivePasses.value >= 2;
     if (_gameOver.value) {
-      _status.value = 'Both players passed — scoring game…';
+      _status.value = context.l10n.bothPlayersPassedScoring;
       await _scoreGame();
     } else {
-      _status.value = '${_colorName(_toMove.value)} to play';
+      _status.value = _toMove.value == 1
+          ? context.l10n.blackToPlay
+          : context.l10n.whiteToPlay;
     }
   }
 
   Future<void> _scoreGame() async {
+    final l10n = context.l10n;
     try {
       final result = (await _sendCommand('final_score')).trim();
       if (result == '0' || result.toLowerCase() == 'jigo') {
         _gameRoot.setValue('RE', '0');
-        _status.value = 'Draw';
+        _status.value = l10n.draw;
         return;
       }
 
@@ -277,18 +299,19 @@ class _GameScreenState extends State<GameScreen> {
       final winner = match.group(1) == 'B' ? 1 : 2;
       final margin = match.group(2)!;
       _gameRoot.setValue('RE', result);
-      _status.value = '${_colorName(winner)} wins by $margin points';
+      _status.value = l10n.playerWinsByPoints(_colorName(winner, l10n), margin);
     } on GnuGoException catch (error) {
-      _error.value = 'Could not score game: ${error.message}';
-      _status.value = 'Scoring failed';
+      _error.value = l10n.couldNotScoreGame(error.message);
+      _status.value = l10n.scoringFailed;
     } catch (error) {
-      _error.value = 'Could not score game: $error';
-      _status.value = 'Scoring failed';
+      _error.value = l10n.couldNotScoreGame(error.toString());
+      _status.value = l10n.scoringFailed;
     }
   }
 
   Future<void> _undo() async {
     if (_busy.value || _history.value.isEmpty) return;
+    final l10n = context.l10n;
     final moveCount =
         _mode.value == GameMode.vsGnuGo && _history.value.length >= 2 ? 2 : 1;
     final snapshotIndex = _history.value.length - moveCount;
@@ -313,12 +336,12 @@ class _GameScreenState extends State<GameScreen> {
       _lastMove.value = snapshot.lastMove;
       _consecutivePasses.value = snapshot.consecutivePasses;
       _gameOver.value = false;
-      _status.value = '${_colorName(_toMove.value)} to play';
+      _status.value = _toMove.value == 1 ? l10n.blackToPlay : l10n.whiteToPlay;
       if (_isAiTurn) await _requestAiMove();
     } on GnuGoException catch (error) {
       if (mounted) _error.value = error.message;
     } catch (error) {
-      if (mounted) _error.value = 'Undo failed: $error';
+      if (mounted) _error.value = context.l10n.undoFailed(error.toString());
     } finally {
       if (mounted) _busy.value = false;
     }
@@ -334,11 +357,12 @@ class _GameScreenState extends State<GameScreen> {
   void _showError(String message) {
     if (!mounted) return;
     _error.value = message;
-    _status.value = 'Engine error';
+    _status.value = context.l10n.engineError;
   }
 
   String _gtpColor(int color) => color == 1 ? 'black' : 'white';
-  String _colorName(int color) => color == 1 ? 'Black' : 'White';
+  String _colorName(int color, AppLocalizations l10n) =>
+      color == 1 ? l10n.black : l10n.white;
 
   SgfNode _createSgfRoot() => SgfNode(
     properties: {
@@ -376,14 +400,16 @@ class _GameScreenState extends State<GameScreen> {
         fileName: '${_safeFilename(_gameName.text)}.sgf',
         bytes: Uint8List.fromList(utf8.encode(data)),
         mimeType: 'application/x-go-sgf',
-        dialogTitle: 'Export SGF game',
+        dialogTitle: context.l10n.exportSgfGame,
       );
       if (!mounted) return;
       _recordMessage.value = uri == null
-          ? 'Export cancelled'
-          : 'Saved SGF to $uri';
+          ? context.l10n.exportCancelled
+          : context.l10n.savedSgfTo(uri);
     } catch (error) {
-      if (mounted) _recordMessage.value = 'Could not export SGF: $error';
+      if (mounted) {
+        _recordMessage.value = context.l10n.couldNotExportSgf(error.toString());
+      }
     } finally {
       if (mounted) _busy.value = false;
     }
@@ -418,14 +444,16 @@ class _GameScreenState extends State<GameScreen> {
         final gameMode = _mode.value;
         final boardSize = _boardSize.value;
         final error = _error.value;
-        final status = _status.value;
+        final status = _status.value.isEmpty
+            ? context.l10n.blackToPlay
+            : _status.value;
         final busy = _busy.value;
         final gameOver = _gameOver.value;
         final recordMessage = _recordMessage.value;
         final canPlay = !busy && !gameOver && !_isAiTurn;
         return Scaffold(
           appBar: AppNavBar(
-            title: 'Game',
+            title: context.l10n.game,
             rightIcon: Icons.refresh,
             onPressedRight: busy ? null : _startNewGame,
             leftIcon: Icons.arrow_back_ios_new,
@@ -488,66 +516,6 @@ class _GameScreenState extends State<GameScreen> {
                       ),
                     ],
                     const SizedBox(height: spacing20),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 14,
-                      runSpacing: 10,
-                      children: [
-                        AppLabeledControl(
-                          label: 'Board',
-                          value: boardSize,
-                          items: _boardSizes,
-                          itemLabel: (size) => '$size×$size',
-                          onSelected: busy
-                              ? null
-                              : (size) {
-                                  if (size == null) {
-                                    return;
-                                  }
-                                  _boardSize.value = size;
-                                  _startNewGame();
-                                },
-                        ),
-                        AppLabeledControl(
-                          label: 'Game',
-                          value: gameMode.index,
-                          items: GameMode.values.map((v) => v.index).toList(),
-                          itemLabel: (mode) => switch (GameMode.values[mode]) {
-                            GameMode.vsGnuGo => 'Vs GNU Go',
-                            GameMode.passAndPlay => 'Pass-and-play',
-                          },
-                          onSelected: busy
-                              ? null
-                              : (mode) {
-                                  if (mode == null) {
-                                    return;
-                                  }
-                                  _mode.value = GameMode.values[mode];
-
-                                  _startNewGame();
-                                },
-                        ),
-                        if (gameMode == GameMode.vsGnuGo)
-                          AppLabeledControl(
-                            label: 'You play',
-                            value: humanColor,
-                            items: const [1, 2],
-                            itemLabel: _colorName,
-                            onSelected: busy
-                                ? null
-                                : (color) {
-                                    if (color == null) {
-                                      return;
-                                    }
-                                    _humanColor.value = color;
-
-                                    _startNewGame();
-                                  },
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: spacing20),
                     Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 680),
@@ -573,22 +541,83 @@ class _GameScreenState extends State<GameScreen> {
                         AppButtonPrimary(
                           onPressed: canPlay ? _pass : null,
                           leftIcon: Icons.skip_next,
-                          text: 'Pass',
+                          text: context.l10n.pass,
                         ),
                         AppButtonSecondary(
                           onPressed: !busy && history.isNotEmpty ? _undo : null,
                           leftIcon: Icons.undo,
-                          text: 'Undo',
+                          text: context.l10n.undo,
                         ),
                         AppButtonSecondary(
                           onPressed: busy ? null : _startNewGame,
                           leftIcon: Icons.refresh,
-                          text: 'New game',
+                          text: context.l10n.newGame,
                         ),
                       ],
                     ),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 14,
+                      runSpacing: 10,
+                      children: [
+                        AppLabeledControl(
+                          label: context.l10n.board,
+                          value: boardSize,
+                          items: _boardSizes,
+                          itemLabel: (size) => '$size×$size',
+                          onSelected: busy
+                              ? null
+                              : (size) {
+                                  if (size == null) {
+                                    return;
+                                  }
+                                  _boardSize.value = size;
+                                  _startNewGame();
+                                },
+                        ),
+                        AppLabeledControl(
+                          label: context.l10n.gameMode,
+                          value: gameMode.index,
+                          items: GameMode.values.map((v) => v.index).toList(),
+                          itemLabel: (mode) => switch (GameMode.values[mode]) {
+                            GameMode.vsGnuGo => context.l10n.vsGnuGo,
+                            GameMode.passAndPlay => context.l10n.passAndPlay,
+                          },
+                          onSelected: busy
+                              ? null
+                              : (mode) {
+                                  if (mode == null) {
+                                    return;
+                                  }
+                                  _mode.value = GameMode.values[mode];
+
+                                  _startNewGame();
+                                },
+                        ),
+                        if (gameMode == GameMode.vsGnuGo)
+                          AppLabeledControl(
+                            label: context.l10n.youPlay,
+                            value: humanColor,
+                            items: const [1, 2],
+                            itemLabel: (color) =>
+                                _colorName(color, context.l10n),
+                            onSelected: busy
+                                ? null
+                                : (color) {
+                                    if (color == null) {
+                                      return;
+                                    }
+                                    _humanColor.value = color;
+
+                                    _startNewGame();
+                                  },
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: spacing20),
                     AppAccordion(
-                      title: 'Game record',
+                      title: context.l10n.gameRecord,
                       children: [
                         Wrap(
                           alignment: WrapAlignment.center,
@@ -599,8 +628,8 @@ class _GameScreenState extends State<GameScreen> {
                               width: 180,
                               child: TextField(
                                 controller: _blackPlayer,
-                                decoration: const InputDecoration(
-                                  labelText: 'Black player',
+                                decoration: InputDecoration(
+                                  labelText: context.l10n.blackPlayer,
                                 ),
                               ),
                             ),
@@ -608,8 +637,8 @@ class _GameScreenState extends State<GameScreen> {
                               width: 180,
                               child: TextField(
                                 controller: _whitePlayer,
-                                decoration: const InputDecoration(
-                                  labelText: 'White player',
+                                decoration: InputDecoration(
+                                  labelText: context.l10n.whitePlayer,
                                 ),
                               ),
                             ),
@@ -617,8 +646,8 @@ class _GameScreenState extends State<GameScreen> {
                               width: 180,
                               child: TextField(
                                 controller: _gameName,
-                                decoration: const InputDecoration(
-                                  labelText: 'Game name (optional)',
+                                decoration: InputDecoration(
+                                  labelText: context.l10n.gameNameOptional,
                                 ),
                               ),
                             ),
@@ -628,7 +657,9 @@ class _GameScreenState extends State<GameScreen> {
                         AppButtonSecondary(
                           onPressed: busy ? null : _exportSgf,
                           leftIcon: Icons.save_alt,
-                          text: busy ? 'Exporting…' : 'Export SGF',
+                          text: busy
+                              ? context.l10n.exporting
+                              : context.l10n.exportSgf,
                         ),
                         if (recordMessage != null)
                           Padding(

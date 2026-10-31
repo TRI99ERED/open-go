@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gnugo_ffi/gnugo_ffi.dart';
+import 'package:opengo/l10n/app_localizations.dart';
 import 'package:opengo/main.dart';
 import 'package:opengo/src/features/screens/game_screen.dart';
 import 'package:opengo/src/features/screens/sgf_review_screen.dart';
+import 'package:opengo/src/features/themes/app_theme.dart';
 
 void main() {
   testWidgets('home screen opens SGF review', (tester) async {
     await tester.pumpWidget(const App());
 
     expect(find.text('Play Go your way'), findsOneWidget);
-    expect(find.text('Solve Tsumego'), findsOneWidget);
-    expect(find.text('Review Games'), findsOneWidget);
-    expect(find.text('Record a Game'), findsOneWidget);
+    expect(find.text('Solve'), findsOneWidget);
+    expect(find.text('Review'), findsOneWidget);
 
-    await tester.tap(find.text('Review Games'));
+    await tester.tap(find.text('Review'));
     await tester.pumpAndSettle();
     expect(find.byType(SgfReviewScreen), findsOneWidget);
     expect(
@@ -33,6 +34,9 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: ThemeData(extensions: const [AppTheme()]),
         home: GameScreen(
           engineStart: (boardSize, seed) async {},
           sendCommand: (command) async {
@@ -57,6 +61,7 @@ void main() {
     expect(commands, contains('clear_board'));
     expect(commands, contains('komi 7.5'));
 
+    await tester.ensureVisible(find.byKey(const ValueKey('go-board')));
     await tester.tap(find.byKey(const ValueKey('go-board')));
     await tester.pumpAndSettle();
 
@@ -72,6 +77,9 @@ void main() {
   testWidgets('shows GNU Go errors instead of hiding them', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: ThemeData(extensions: const [AppTheme()]),
         home: GameScreen(
           engineStart: (boardSize, seed) async {},
           sendCommand: (command) async =>

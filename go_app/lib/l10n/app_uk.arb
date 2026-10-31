@@ -1,0 +1,561 @@
+{
+  "@@locale": "uk",
+  "appTitle": "Відкритий Ґо",
+  "@appTitle": {
+    "description": "Application name shown in the operating system and app chrome."
+  },
+  "home": "Домівка",
+  "@home": {
+    "description": "Title of the application's home screen."
+  },
+  "openGo": "Відкритий Ґо",
+  "@openGo": {
+    "description": "Product name shown in the navigation drawer."
+  },
+  "settings": "Налаштування",
+  "@settings": {
+    "description": "Title of the settings screen and its navigation item."
+  },
+  "playGoYourWay": "Грайте Ґо по-своєму",
+  "@playGoYourWay": {
+    "description": "Main heading on the home screen inviting the user to play Go."
+  },
+  "homeDescription": "Грайте, вивчайте проблеми, оглядайте і ведіть записи ігор.",
+  "@homeDescription": {
+    "description": "Supporting description of the activities available in the app."
+  },
+  "play": "Грати",
+  "@play": {
+    "description": "Home-screen action to start a Go game; also the SGF playback tooltip."
+  },
+  "solve": "Розгадувати",
+  "@solve": {
+    "description": "Home-screen action to open Go life-and-death problems."
+  },
+  "review": "Оглядати",
+  "@review": {
+    "description": "Home-screen action to review a game record."
+  },
+  "appearance": "Вигляд",
+  "@appearance": {
+    "description": "Settings section containing theme and fullscreen options."
+  },
+  "language": "Мова",
+  "@language": {
+    "description": "Settings section for choosing the app's display language."
+  },
+  "languageSystem": "Системна",
+  "@languageSystem": {
+    "description": "Language option that follows the device's preferred language."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "English language option, named in its native language."
+  },
+  "languageUkrainian": "Українська",
+  "@languageUkrainian": {
+    "description": "Ukrainian language option, named in its native language."
+  },
+  "theme": "Тема",
+  "@theme": {
+    "description": "Label for the app theme selection setting."
+  },
+  "system": "Системна",
+  "@system": {
+    "description": "Theme option that follows the operating system's light or dark setting."
+  },
+  "light": "Світла",
+  "@light": {
+    "description": "Light appearance theme option."
+  },
+  "dark": "Темна",
+  "@dark": {
+    "description": "Dark appearance theme option."
+  },
+  "fullscreen": "Повноекранний режим",
+  "@fullscreen": {
+    "description": "Setting that toggles fullscreen display mode."
+  },
+  "errorWithMessage": "Помилка: {message}",
+  "@errorWithMessage": {
+    "description": "Prefix shown before an error message in a notification.",
+    "placeholders": {
+      "message": {
+        "description": "Error details to display."
+      }
+    }
+  },
+  "unableToChangeFullscreen": "Не виходить перейти до повноекранного режиму: {error}",
+  "@unableToChangeFullscreen": {
+    "description": "Notification shown when the fullscreen setting cannot be changed.",
+    "placeholders": {
+      "error": {
+        "description": "Details about why fullscreen mode could not be changed."
+      }
+    }
+  },
+  "game": "Гра",
+  "@game": {
+    "description": "Game screen title and SGF metadata label."
+  },
+  "black": "Чорні",
+  "@black": {
+    "description": "Black player or stone color in a Go game."
+  },
+  "white": "Білі",
+  "@white": {
+    "description": "White player or stone color in a Go game."
+  },
+  "blackToPlay": "Хід Чорних",
+  "@blackToPlay": {
+    "description": "Game status indicating that Black is next to move."
+  },
+  "whiteToPlay": "Хід Білих",
+  "@whiteToPlay": {
+    "description": "Game status indicating that White is next to move."
+  },
+  "startingGnuGo": "Запускаємо GNU Go…",
+  "@startingGnuGo": {
+    "description": "Game status shown while the GNU Go engine is starting."
+  },
+  "playerResignsWinner": "{player} здалися — {winner} перемагають",
+  "@playerResignsWinner": {
+    "description": "Game status shown when a player resigns and the opponent wins.",
+    "placeholders": {
+      "player": {
+        "description": "Name of the player who resigned."
+      },
+      "winner": {
+        "description": "Name of the player who won."
+      }
+    }
+  },
+  "bothPlayersPassedScoring": "Обидва гравця пропустили хід — оцінюємо гру…",
+  "@bothPlayersPassedScoring": {
+    "description": "Game status shown while the final score is calculated after both players pass."
+  },
+  "draw": "Нічия",
+  "@draw": {
+    "description": "Game result when neither player wins."
+  },
+  "playerWinsByPoints": "{player} перемагає на {points} очків",
+  "@playerWinsByPoints": {
+    "description": "Game result stating the winner and the score margin.",
+    "placeholders": {
+      "player": {
+        "description": "Name or color of the winning player."
+      },
+      "points": {
+        "description": "Winning margin in points; may contain a decimal fraction."
+      }
+    }
+  },
+  "scoringFailed": "Не вдалося оцінити",
+  "@scoringFailed": {
+    "description": "Game status shown when the final score could not be calculated."
+  },
+  "engineError": "Помилка рушія",
+  "@engineError": {
+    "description": "Game status heading shown when the Go engine reports an error."
+  },
+  "couldNotStartGame": "Не вдалося розпочати гру: {error}",
+  "@couldNotStartGame": {
+    "description": "Error shown when a new game cannot be started.",
+    "placeholders": {
+      "error": {
+        "description": "Details about why the game could not start."
+      }
+    }
+  },
+  "moveFailed": "Не вдалося зробити хід: {error}",
+  "@moveFailed": {
+    "description": "Error shown when a player's move could not be made.",
+    "placeholders": {
+      "error": {
+        "description": "Details about why the move failed."
+      }
+    }
+  },
+  "passFailed": "Не вдалося пропустити хід: {error}",
+  "@passFailed": {
+    "description": "Error shown when a player could not pass.",
+    "placeholders": {
+      "error": {
+        "description": "Details about why passing failed."
+      }
+    }
+  },
+  "couldNotScoreGame": "Не вдалося оцінити гру: {error}",
+  "@couldNotScoreGame": {
+    "description": "Error shown when calculating the final game score fails.",
+    "placeholders": {
+      "error": {
+        "description": "Details about why the game could not be scored."
+      }
+    }
+  },
+  "undoFailed": "Не вдалося повернути хід: {error}",
+  "@undoFailed": {
+    "description": "Error shown when the previous move cannot be undone.",
+    "placeholders": {
+      "error": {
+        "description": "Details about why undo failed."
+      }
+    }
+  },
+  "board": "Дошка",
+  "@board": {
+    "description": "Label for the Go board size selection."
+  },
+  "gameMode": "Гра",
+  "@gameMode": {
+    "description": "Label for the game mode selection."
+  },
+  "vsGnuGo": "Проти GNU Go",
+  "@vsGnuGo": {
+    "description": "Game mode where the user plays against the GNU Go engine."
+  },
+  "passAndPlay": "Передавай-і-грай",
+  "@passAndPlay": {
+    "description": "Local two-player mode where players take turns on the same device."
+  },
+  "youPlay": "Ваш хід",
+  "@youPlay": {
+    "description": "Label for selecting which color the user plays against GNU Go."
+  },
+  "pass": "Пропустити хід",
+  "@pass": {
+    "description": "Game action that passes the current player's turn."
+  },
+  "undo": "Повернути хід",
+  "@undo": {
+    "description": "Game action that takes back the previous move."
+  },
+  "newGame": "Нова гра",
+  "@newGame": {
+    "description": "Game action that starts a new game."
+  },
+  "gameRecord": "Запис гри",
+  "@gameRecord": {
+    "description": "Expandable section containing player names and SGF export controls."
+  },
+  "blackPlayer": "Гравець Чорних",
+  "@blackPlayer": {
+    "description": "Input label for the name of the player assigned Black in the game record."
+  },
+  "whitePlayer": "Гравець Білих",
+  "@whitePlayer": {
+    "description": "Input label for the name of the player assigned White in the game record."
+  },
+  "gameNameOptional": "Назва гри (необов'язково)",
+  "@gameNameOptional": {
+    "description": "Optional input label for the game name saved in the SGF record."
+  },
+  "exporting": "Експортуємо…",
+  "@exporting": {
+    "description": "Button label while the game record is being exported."
+  },
+  "exportSgf": "Експорт SGF",
+  "@exportSgf": {
+    "description": "Action to save the current game record in Smart Game Format."
+  },
+  "exportSgfGame": "Експортувати SGF гру",
+  "@exportSgfGame": {
+    "description": "Title of the file-save dialog for exporting a Go game record."
+  },
+  "exportCancelled": "Експорт скасовано",
+  "@exportCancelled": {
+    "description": "Status shown when the user cancels the SGF export dialog."
+  },
+  "savedSgfTo": "Збережено SGF до {path}",
+  "@savedSgfTo": {
+    "description": "Status confirming the destination of the exported game record.",
+    "placeholders": {
+      "path": {
+        "description": "File path where the SGF game record was saved."
+      }
+    }
+  },
+  "couldNotExportSgf": "Не вдалося експортувати SGF: {error}",
+  "@couldNotExportSgf": {
+    "description": "Error shown when the game record could not be exported.",
+    "placeholders": {
+      "error": {
+        "description": "Details about why exporting the SGF failed."
+      }
+    }
+  },
+  "tsumegos": "Цумеґо",
+  "@tsumegos": {
+    "description": "Title of the Go life-and-death problems screen (plural)."
+  },
+  "tsumego": "Цумеґо",
+  "@tsumego": {
+    "description": "Title of the Go life-and-death problems screen."
+  },
+  "loadingProblems": "Завантажуємо проблеми…",
+  "@loadingProblems": {
+    "description": "Status shown while Go problems are being loaded."
+  },
+  "problemNumber": "Проблема {number}",
+  "@problemNumber": {
+    "description": "Fallback label identifying a Go problem by its sequence number.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "description": "One-based problem number."
+      }
+    }
+  },
+  "problemUnavailable": "Проблема {number} недоступна.",
+  "@problemUnavailable": {
+    "description": "Status shown when the requested Go problem cannot be found.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "description": "One-based problem number that could not be opened."
+      }
+    }
+  },
+  "couldNotLoadProblems": "Не вдалося завантажити проблеми: {error}",
+  "@couldNotLoadProblems": {
+    "description": "Error shown when the Go problem collection fails to load.",
+    "placeholders": {
+      "error": {
+        "description": "Details about why the problems could not be loaded."
+      }
+    }
+  },
+  "failedToLoadProblems": "Не вдалося завантажити проблеми.",
+  "@failedToLoadProblems": {
+    "description": "Short status shown when loading the problem collection fails."
+  },
+  "couldNotImportProblems": "Не вдалося імпортувати проблеми.",
+  "@couldNotImportProblems": {
+    "description": "Notification shown when importing Go problems from an SGF file fails."
+  },
+  "importTsumegoSgf": "Імпортувати цумеґо SGF",
+  "@importTsumegoSgf": {
+    "description": "Title of the file-picker dialog for importing Go life-and-death problems."
+  },
+  "findSolution": "Знайдіть рішення.",
+  "@findSolution": {
+    "description": "Initial instruction shown when a Go problem is ready to solve."
+  },
+  "invalidProblemSgf": "Недійсний SGF проблеми: {error}",
+  "@invalidProblemSgf": {
+    "description": "Error shown when a Go problem's SGF data cannot be interpreted.",
+    "placeholders": {
+      "error": {
+        "description": "Details about why the problem SGF is invalid."
+      }
+    }
+  },
+  "incorrectMove": "Цього ходу нема в рішенні. Спробуйте інший хід.",
+  "@incorrectMove": {
+    "description": "Feedback shown when a move does not match an accepted problem solution."
+  },
+  "solvedProblem": "Розгадано! Ви знайшли рішення.",
+  "@solvedProblem": {
+    "description": "Success feedback shown after the user solves a Go problem."
+  },
+  "correctContinue": "Правильно. Продовжуйте послідовність.",
+  "@correctContinue": {
+    "description": "Feedback shown when a correct move continues but does not finish a problem."
+  },
+  "incorrectAttempts": "{count, plural, =0{Немає некоректних спроб} one{{count} ненкоректна спроба} other{{count} некоректних спроб}}",
+  "@incorrectAttempts": {
+    "description": "Count of incorrect moves made while solving the current Go problem.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "Number of incorrect move attempts."
+      }
+    }
+  },
+  "tryAgain": "Спробуйте знову",
+  "@tryAgain": {
+    "description": "Action to restart the current Go problem."
+  },
+  "next": "Наступна",
+  "@next": {
+    "description": "Action to advance to the next Go problem."
+  },
+  "reviewSgf": "Огляд SGF",
+  "@reviewSgf": {
+    "description": "Title of the screen for reviewing a Smart Game Format record."
+  },
+  "openSgfGameRecord": "Відкрити SGF запис гри",
+  "@openSgfGameRecord": {
+    "description": "Title of the file-picker dialog for opening an SGF game record."
+  },
+  "couldNotOpenSgf": "Не вдалося відкрити SGF: {error}",
+  "@couldNotOpenSgf": {
+    "description": "Error shown when an SGF game record cannot be opened.",
+    "placeholders": {
+      "error": {
+        "description": "Details about why the SGF file could not be opened."
+      }
+    }
+  },
+  "variation": "Варіація {number}",
+  "@variation": {
+    "description": "Subtitle identifying a branch in the game's move variations.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "description": "One-based variation number."
+      }
+    }
+  },
+  "setup": "Розклад",
+  "@setup": {
+    "description": "Label for a game-tree node that sets up the board rather than making a move."
+  },
+  "playerPasses": "{player} пропускає хід",
+  "@playerPasses": {
+    "description": "Move description for a player passing instead of placing a stone.",
+    "placeholders": {
+      "player": {
+        "description": "Name or color of the player who passed."
+      }
+    }
+  },
+  "openSgfReviewDescription": "Відкрийте SGF файл щоб оглянути його гру, коментарі і варіації.",
+  "@openSgfReviewDescription": {
+    "description": "Empty-state instructions shown before a game record is opened."
+  },
+  "gameNumber": "Гра {number}",
+  "@gameNumber": {
+    "description": "Label identifying a game in a multi-game SGF file.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "description": "One-based game number in the SGF collection."
+      }
+    }
+  },
+  "moveProgress": "Хід {current} / {total} · {player} ходить",
+  "@moveProgress": {
+    "description": "Review status showing the current move, main-line length, and next player.",
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "description": "Current move number in the reviewed variation; zero means the initial position."
+      },
+      "total": {
+        "type": "int",
+        "description": "Number of moves on the main line of the game."
+      },
+      "player": {
+        "description": "Name or color of the player whose turn is next."
+      }
+    }
+  },
+  "previousMove": "Попередній хід",
+  "@previousMove": {
+    "description": "Accessibility tooltip for the control that steps to the previous move."
+  },
+  "pause": "Пауза",
+  "@pause": {
+    "description": "Accessibility tooltip shown when SGF move playback is running."
+  },
+  "nextMoveChooseVariation": "Наступний хід / обрати варіацію",
+  "@nextMoveChooseVariation": {
+    "description": "Accessibility tooltip for advancing to the next move or selecting a branch."
+  },
+  "date": "Дата",
+  "@date": {
+    "description": "SGF metadata label for the date the game was played."
+  },
+  "result": "Результат",
+  "@result": {
+    "description": "SGF metadata label for the game's result."
+  },
+  "komi": "Комі",
+  "@komi": {
+    "description": "SGF metadata label for komi, the compensation points given to White."
+  },
+  "rules": "Правила",
+  "@rules": {
+    "description": "SGF metadata label for the ruleset used in the game."
+  },
+  "event": "Подія",
+  "@event": {
+    "description": "SGF metadata label for the event in which the game was played."
+  },
+  "boardSize": "Дошка: {size}×{size}",
+  "@boardSize": {
+    "description": "SGF metadata showing the Go board dimensions; the same size is used for width and height.",
+    "placeholders": {
+      "size": {
+        "type": "int",
+        "description": "Board width and height in intersections, such as 19."
+      }
+    }
+  },
+  "none": "нема",
+  "@none": {
+    "description": "Accessibility text indicating that there are no stones of a color on the board."
+  },
+  "goBoardSemantics": "Дошка ґо. Чорні камені: {black}. Білі камені: {white}.",
+  "@goBoardSemantics": {
+    "description": "Accessibility label describing the Go board and the locations of each color's stones.",
+    "placeholders": {
+      "black": {
+        "description": "Comma-separated board coordinates occupied by Black stones, or the localized word for none."
+      },
+      "white": {
+        "description": "Comma-separated board coordinates occupied by White stones, or the localized word for none."
+      }
+    }
+  },
+  "filter": "Фільтр",
+  "@filter": {
+    "description": "Title of the filter options screen."
+  },
+  "cancel": "Скасувати",
+  "@cancel": {
+    "description": "Action that closes a screen without applying its changes."
+  },
+  "clearAll": "Очистити все",
+  "@clearAll": {
+    "description": "Filter-screen action that clears every selected filter."
+  },
+  "applyFilters": "Застосувати фільтри",
+  "@applyFilters": {
+    "description": "Action that applies the selected filters."
+  },
+  "sort": "Сортування",
+  "@sort": {
+    "description": "Title of the sorting options screen."
+  },
+  "defaultAction": "Стандартне",
+  "@defaultAction": {
+    "description": "Sorting-screen action that restores the default sort settings."
+  },
+  "sortOrder": "Порядок сортування",
+  "@sortOrder": {
+    "description": "Heading for choosing ascending or descending sort order."
+  },
+  "descending": "СПАДАЮЧИЙ",
+  "@descending": {
+    "description": "Sort-order option that places later or larger values first."
+  },
+  "ascending": "ЗРОСТАЮЧИЙ",
+  "@ascending": {
+    "description": "Sort-order option that places earlier or smaller values first."
+  },
+  "sortBy": "Сортувати за",
+  "@sortBy": {
+    "description": "Heading for choosing the field used to sort items."
+  },
+  "applySort": "Застосувати сортування",
+  "@applySort": {
+    "description": "Action that applies the selected sort field and order."
+  },
+  "typeMessage": "Введіть повідомлення...",
+  "@typeMessage": {
+    "description": "Placeholder text in a message input field."
+  }
+}
