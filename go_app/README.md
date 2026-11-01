@@ -99,9 +99,10 @@ example, `v0.1.0`). Push both the commit and tag. Update the `commit` in the
 build recipe to that release commit, then submit the recipe as
 `metadata/com.tri99er.opengo.yml` in a [merge request to
 fdroiddata](https://gitlab.com/fdroid/fdroiddata/-/merge_requests). The recipe
-currently points to an earlier commit, and this repository has no release tags,
-so those steps remain outstanding. Run `fdroid lint` and `fdroid build` on the
-recipe, or use the F-Droid CI pipeline, before proposing it.
+targets release tag `v0.1.0` at commit
+`880c69d163e5708202cf1908785f59d596197e84`. Run `fdroid lint` and
+`fdroid build` on the recipe, or use the F-Droid CI pipeline, before proposing
+it.
 
 F-Droid normally signs its builds with its own key. Installing an F-Droid build
 alongside an APK signed with a different key may require uninstalling the
