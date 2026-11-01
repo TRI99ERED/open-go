@@ -6,6 +6,8 @@ import '../core/game/go_position.dart';
 import '../core/localization/localization.dart';
 import '../features/themes/app_theme.dart';
 
+const goBoardMaxWidth = 680.0;
+
 class GoBoard extends StatelessWidget {
   final int boardSize;
   final List<int> stones;

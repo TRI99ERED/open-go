@@ -29,6 +29,11 @@ void main() {
   testWidgets('starts an offline game and plays a move against GNU Go', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(1000, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final commands = <String>[];
     var boardSyncs = 0;
 
@@ -61,10 +66,12 @@ void main() {
     expect(commands, contains('clear_board'));
     expect(commands, contains('komi 7.5'));
 
-    await tester.ensureVisible(find.byKey(const ValueKey('go-board')));
-    await tester.tap(find.byKey(const ValueKey('go-board')));
+    final boardFinder = find.byKey(const ValueKey('go-board'));
+    final boardRect = tester.getRect(boardFinder);
+    await tester.tap(boardFinder);
     await tester.pumpAndSettle();
 
+    expect(tester.getRect(boardFinder), boardRect);
     expect(commands, contains('play black E5'));
     expect(commands, contains('genmove white'));
     expect(

@@ -77,10 +77,11 @@ class _TsumegosScreenState extends State<TsumegosScreen> {
 
               return LayoutBuilder(
                 builder: (context, constraints) {
-                  final availableWidth = constraints.maxWidth - spacing40 * 2;
                   final crossAxisCount = constraints.maxWidth < 600
                       ? 1
-                      : (availableWidth / 100).floor().clamp(1, 5);
+                      : constraints.maxWidth < 1000
+                      ? 3
+                      : 5;
 
                   return GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -104,6 +105,7 @@ class _TsumegosScreenState extends State<TsumegosScreen> {
                           },
                           child: Column(
                             children: [
+                              SizedBox(height: spacing16),
                               SizedBox(
                                 height: bSSize * 3,
                                 child: Text(
@@ -136,6 +138,7 @@ class _TsumegosScreenState extends State<TsumegosScreen> {
                                   ),
                                 ),
                               ),
+                              SizedBox(height: spacing16),
                             ],
                           ),
                         ),

@@ -4,6 +4,7 @@ import 'package:opengo/src/core/localization/localization.dart';
 import 'package:opengo/src/core/game/sgf.dart';
 import 'package:opengo/src/core/widgets/controller_consumer.dart';
 import 'package:opengo/src/features/app/app_scope.dart';
+import 'package:opengo/src/features/themes/styles.dart';
 import 'package:opengo/src/widgets/common/app_button.dart';
 import 'package:opengo/src/widgets/common/app_dropdown.dart';
 import 'package:opengo/src/widgets/common/app_nav_bar.dart';
@@ -196,6 +197,7 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
         onPressedLeft: () => Navigator.of(context).pop(),
       ),
       body: SafeArea(
+        top: false,
         child: ControllerConsumer(
           controller: context.appController,
           listenWhen: (previous, current) =>
@@ -203,11 +205,17 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
           listener: (context, previous, current) {},
           builder: (context, current) {
             final problems = current.tsumegos.games;
-            return Center(
+            return Align(
+              alignment: Alignment.topCenter,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 820),
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.fromLTRB(
+                    spacing20,
+                    spacing8,
+                    spacing20,
+                    spacing24,
+                  ),
                   child: AnimatedBuilder(
                     animation: Listenable.merge([
                       _problemIndex,
@@ -241,7 +249,7 @@ class _TsumegoScreenState extends State<TsumegoScreen> {
                             Center(
                               child: ConstrainedBox(
                                 constraints: const BoxConstraints(
-                                  maxWidth: 680,
+                                  maxWidth: goBoardMaxWidth,
                                 ),
                                 child: AspectRatio(
                                   aspectRatio: 1,

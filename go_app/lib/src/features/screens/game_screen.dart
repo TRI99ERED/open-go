@@ -565,19 +565,22 @@ class _GameScreenState extends State<GameScreen> {
             leftIcon: Icons.arrow_back_ios_new,
             onPressedLeft: () => Navigator.of(context).pop(),
           ),
-          body: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 820),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  spacing20,
-                  spacing8,
-                  spacing20,
-                  spacing24,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+          body: SafeArea(
+            top: false,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 820),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(
+                    spacing20,
+                    spacing8,
+                    spacing20,
+                    spacing24,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                     SizedBox(
                       height: 80,
                       child: Column(
@@ -624,7 +627,9 @@ class _GameScreenState extends State<GameScreen> {
                     const SizedBox(height: spacing20),
                     Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 680),
+                        constraints: const BoxConstraints(
+                          maxWidth: goBoardMaxWidth,
+                        ),
                         child: AspectRatio(
                           aspectRatio: 1,
                           child: LayoutBuilder(
@@ -823,7 +828,8 @@ class _GameScreenState extends State<GameScreen> {
                         const SizedBox(height: spacing12),
                       ],
                     ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

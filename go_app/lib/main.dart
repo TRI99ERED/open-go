@@ -124,12 +124,21 @@ class _AppState extends State<App> {
             themeMode: _themeMode.value,
             routerDelegate: _routerDelegate,
             routeInformationParser: _routeParser,
-            builder: (context, child) => AppScope(
-              appController: _appController,
-              themeMode: _themeMode,
-              locale: _locale,
-              fullscreenMode: _fullscreenMode,
-              onFullscreenModeChanged: _setFullscreenMode,
+            builder: (context, child) => ValueListenableBuilder<bool>(
+              valueListenable: _fullscreenMode,
+              builder: (context, isFullscreen, child) =>
+                  MediaQuery.removePadding(
+                    context: context,
+                    removeTop: isFullscreen,
+                    child: AppScope(
+                      appController: _appController,
+                      themeMode: _themeMode,
+                      locale: _locale,
+                      fullscreenMode: _fullscreenMode,
+                      onFullscreenModeChanged: _setFullscreenMode,
+                      child: child ?? const SplashScreen(),
+                    ),
+                  ),
               child: child ?? const SplashScreen(),
             ),
           ),
