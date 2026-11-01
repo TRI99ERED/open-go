@@ -99,6 +99,10 @@ class _AppState extends State<App> {
         await SystemChrome.setEnabledSystemUIMode(
           value ? SystemUiMode.immersiveSticky : SystemUiMode.edgeToEdge,
         );
+        if (defaultTargetPlatform == TargetPlatform.android) {
+          await const MethodChannel('opengo/window')
+              .invokeMethod<void>('setFullscreen', value);
+        }
       }
     } catch (error, stackTrace) {
       _fullscreenMode.value = previousValue;
@@ -126,19 +130,27 @@ class _AppState extends State<App> {
             routeInformationParser: _routeParser,
             builder: (context, child) => ValueListenableBuilder<bool>(
               valueListenable: _fullscreenMode,
-              builder: (context, isFullscreen, child) =>
-                  MediaQuery.removePadding(
-                    context: context,
-                    removeTop: isFullscreen,
-                    child: AppScope(
-                      appController: _appController,
-                      themeMode: _themeMode,
-                      locale: _locale,
-                      fullscreenMode: _fullscreenMode,
-                      onFullscreenModeChanged: _setFullscreenMode,
-                      child: child ?? const SplashScreen(),
-                    ),
+              builder: (context, isFullscreen, child) {
+                final mediaQuery = MediaQuery.of(context);
+                final fullscreenMediaQuery = isFullscreen
+                    ? mediaQuery.copyWith(
+                        padding: mediaQuery.padding.copyWith(top: 0),
+                        viewPadding: mediaQuery.viewPadding.copyWith(top: 0),
+                      )
+                    : mediaQuery;
+
+                return MediaQuery(
+                  data: fullscreenMediaQuery,
+                  child: AppScope(
+                    appController: _appController,
+                    themeMode: _themeMode,
+                    locale: _locale,
+                    fullscreenMode: _fullscreenMode,
+                    onFullscreenModeChanged: _setFullscreenMode,
+                    child: child ?? const SplashScreen(),
                   ),
+                );
+              },
               child: child ?? const SplashScreen(),
             ),
           ),

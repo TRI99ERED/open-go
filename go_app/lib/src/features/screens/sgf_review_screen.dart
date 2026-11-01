@@ -191,166 +191,191 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
       ),
       body: SafeArea(
         top: false,
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 820),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                spacing20,
-                spacing8,
-                spacing20,
-                spacing24,
-              ),
-              child: AnimatedBuilder(
-                animation: Listenable.merge([
-                  _collection,
-                  _gameIndex,
-                  _sourceName,
-                  _path,
-                  _playback,
-                  _error,
-                ]),
-                builder: (context, child) {
-                  final collection = _collection.value;
-                  final gameIndex = _gameIndex.value;
-                  final sourceName = _sourceName.value;
-                  final path = _path.value;
-                  final playback = _playback.value;
-                  final error = _error.value;
-                  final root = _root;
-                  final position = _position;
-                  final comment = _currentNode?.firstValue('C');
+        child: LayoutBuilder(
+          builder: (context, constraints) => Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 820),
+              child: SingleChildScrollView(
+                child: AnimatedBuilder(
+                  animation: Listenable.merge([
+                    _collection,
+                    _gameIndex,
+                    _sourceName,
+                    _path,
+                    _playback,
+                    _error,
+                  ]),
+                  builder: (context, child) {
+                    final collection = _collection.value;
+                    final gameIndex = _gameIndex.value;
+                    final sourceName = _sourceName.value;
+                    final path = _path.value;
+                    final playback = _playback.value;
+                    final error = _error.value;
+                    final root = _root;
+                    final position = _position;
+                    final comment = _currentNode?.firstValue('C');
+                    final errorMessage = error == null
+                        ? null
+                        : Text(
+                            error,
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                  .extension<AppTheme>()!
+                                  .errorDarkColor,
+                            ),
+                          );
 
-                  return Column(
-                    children: [
-                      if (collection == null)
-                        EmptyState(
-                          title: context.l10n.openSgfGameRecord,
-                          body: context.l10n.openSgfReviewDescription,
-                          buttonText: context.l10n.openSgfGameRecord,
-                          onButtonPressed: _openSgf,
-                        )
-                      else ...[
-                        if (collection.games.length > 1)
-                          AppDropdown(
-                            selectedIndex: gameIndex,
-                            items: [
-                              for (
-                                var index = 0;
-                                index < collection.games.length;
-                                index++
-                              )
-                                DropdownMenuEntry(
-                                  value: '$index',
-                                  label: context.l10n.gameNumber(index + 1),
+                    if (collection == null) {
+                      return SizedBox(
+                        height: constraints.maxHeight,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: spacing20,
                                 ),
+                                child: EmptyState(
+                                  title: context.l10n.openSgfGameRecord,
+                                  body: context.l10n.openSgfReviewDescription,
+                                  buttonText: context.l10n.openSgfGameRecord,
+                                  onButtonPressed: _openSgf,
+                                ),
+                              ),
+                            ),
+                            if (errorMessage != null) ...[
+                              const SizedBox(height: spacing8),
+                              errorMessage,
                             ],
-                            onSelected: (v) => _selectGame(v.$2),
-                          ),
-                        if (sourceName != null) Text(sourceName),
-                        if (root != null) _metadata(root),
-                        if (position != null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            context.l10n.moveProgress(
-                              path.length,
-                              _mainLineLength(root!),
-                              position.toMove == 1
-                                  ? context.l10n.black
-                                  : context.l10n.white,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(
-                                maxWidth: goBoardMaxWidth,
-                              ),
-                              child: AspectRatio(
-                                aspectRatio: 1,
-                                child: GoBoard(
-                                  boardSize: position.size,
-                                  stones: position.stones,
-                                  lastMove: position.lastMove,
-                                  labels: _labelsAtPosition(position),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 12,
-                            children: [
-                              IconButton(
-                                tooltip: context.l10n.previousMove,
-                                onPressed: path.isEmpty ? null : _previous,
-                                style: IconButton.styleFrom(
-                                  foregroundColor: Theme.of(context)
-                                      .extension<AppTheme>()!
-                                      .foregroundMediumColor,
-                                ),
-                                icon: const Icon(Icons.skip_previous),
-                              ),
-                              IconButton(
-                                tooltip: playback == null
-                                    ? context.l10n.play
-                                    : context.l10n.pause,
-                                onPressed: _togglePlayback,
-                                style: IconButton.styleFrom(
-                                  foregroundColor: Theme.of(context)
-                                      .extension<AppTheme>()!
-                                      .foregroundStrongestColor,
-                                ),
-                                icon: Icon(
-                                  playback == null
-                                      ? Icons.play_arrow
-                                      : Icons.pause,
-                                ),
-                              ),
-                              IconButton(
-                                tooltip: context.l10n.nextMoveChooseVariation,
-                                onPressed:
-                                    _currentNode?.children.isEmpty ?? true
-                                    ? null
-                                    : _advance,
-                                style: IconButton.styleFrom(
-                                  foregroundColor: Theme.of(context)
-                                      .extension<AppTheme>()!
-                                      .foregroundMediumColor,
-                                ),
-                                icon: const Icon(Icons.skip_next),
-                              ),
-                            ],
-                          ),
-                          if (comment != null && comment.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const AppBadgeIcon(icon: Icons.comment),
-                                  const SizedBox(width: 8),
-                                  Expanded(child: Text(comment)),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ],
-                      if (error != null) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          error,
-                          style: TextStyle(
-                            color: Theme.of(context)
-                                .extension<AppTheme>()!
-                                .errorDarkColor,
-                          ),
+                          ],
                         ),
-                      ],
-                    ],
-                  );
-                },
+                      );
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        spacing20,
+                        spacing8,
+                        spacing20,
+                        spacing24,
+                      ),
+                      child: Column(
+                        children: [
+                          if (collection.games.length > 1)
+                            AppDropdown(
+                              selectedIndex: gameIndex,
+                              items: [
+                                for (
+                                  var index = 0;
+                                  index < collection.games.length;
+                                  index++
+                                )
+                                  DropdownMenuEntry(
+                                    value: '$index',
+                                    label: context.l10n.gameNumber(index + 1),
+                                  ),
+                              ],
+                              onSelected: (v) => _selectGame(v.$2),
+                            ),
+                          if (sourceName != null) Text(sourceName),
+                          if (root != null) _metadata(root),
+                          if (position != null) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              context.l10n.moveProgress(
+                                path.length,
+                                _mainLineLength(root!),
+                                position.toMove == 1
+                                    ? context.l10n.black
+                                    : context.l10n.white,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: goBoardMaxWidth,
+                                ),
+                                child: AspectRatio(
+                                  aspectRatio: 1,
+                                  child: GoBoard(
+                                    boardSize: position.size,
+                                    stones: position.stones,
+                                    lastMove: position.lastMove,
+                                    labels: _labelsAtPosition(position),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 12,
+                              children: [
+                                IconButton(
+                                  tooltip: context.l10n.previousMove,
+                                  onPressed: path.isEmpty ? null : _previous,
+                                  style: IconButton.styleFrom(
+                                    foregroundColor: Theme.of(context)
+                                        .extension<AppTheme>()!
+                                        .foregroundMediumColor,
+                                  ),
+                                  icon: const Icon(Icons.skip_previous),
+                                ),
+                                IconButton(
+                                  tooltip: playback == null
+                                      ? context.l10n.play
+                                      : context.l10n.pause,
+                                  onPressed: _togglePlayback,
+                                  style: IconButton.styleFrom(
+                                    foregroundColor: Theme.of(context)
+                                        .extension<AppTheme>()!
+                                        .foregroundStrongestColor,
+                                  ),
+                                  icon: Icon(
+                                    playback == null
+                                        ? Icons.play_arrow
+                                        : Icons.pause,
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: context.l10n.nextMoveChooseVariation,
+                                  onPressed:
+                                      _currentNode?.children.isEmpty ?? true
+                                      ? null
+                                      : _advance,
+                                  style: IconButton.styleFrom(
+                                    foregroundColor: Theme.of(context)
+                                        .extension<AppTheme>()!
+                                        .foregroundMediumColor,
+                                  ),
+                                  icon: const Icon(Icons.skip_next),
+                                ),
+                              ],
+                            ),
+                            if (comment != null && comment.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const AppBadgeIcon(icon: Icons.comment),
+                                    const SizedBox(width: 8),
+                                    Expanded(child: Text(comment)),
+                                  ],
+                                ),
+                              ),
+                          ],
+                          if (errorMessage != null) ...[
+                            const SizedBox(height: spacing8),
+                            errorMessage,
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),
