@@ -1,4 +1,13 @@
+<p align="center">
+  <img src="go_app/fastlane/metadata/android/en-US/images/icon.png" width="160" alt="OpenGo app icon">
+</p>
+
 # OpenGo Flutter app
+
+[![GitHub stars](https://img.shields.io/github/stars/TRI99ERED/open-go)](https://github.com/TRI99ERED/open-go/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/TRI99ERED/open-go)](https://github.com/TRI99ERED/open-go/forks)
+[![Open issues](https://img.shields.io/github/issues/TRI99ERED/open-go)](https://github.com/TRI99ERED/open-go/issues)
+[![License](https://img.shields.io/github/license/TRI99ERED/open-go)](COPYING)
 
 OpenGo is an offline Go app built with Flutter and powered by the GNU Go
 engine. It supports Windows, Android, and iOS, and works without an internet
