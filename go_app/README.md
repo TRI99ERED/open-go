@@ -84,6 +84,30 @@ They are licensed CC BY-NC-SA 4.0, with attribution and distribution details in
 license permits non-commercial use; commercial distribution requires separate
 permission from the rights holders.
 
+## F-Droid
+
+The F-Droid source-build recipe and `NonFreeAssets` disclosure are in
+[`../metadata/com.tri99er.opengo.yml`](../metadata/com.tri99er.opengo.yml).
+The localized listing text, release notes, app icon, and phone screenshots are in
+[`fastlane/metadata/android`](fastlane/metadata/android). Keep the attribution
+and license information in `licenses/THIRD_PARTY_NOTICES.md` with distributed
+builds.
+
+To propose inclusion in the official F-Droid repository, first commit the
+listing files to this repository and tag the corresponding app release (for
+example, `v0.1.0`). Push both the commit and tag. Update the `commit` in the
+build recipe to that release commit, then submit the recipe as
+`metadata/com.tri99er.opengo.yml` in a [merge request to
+fdroiddata](https://gitlab.com/fdroid/fdroiddata/-/merge_requests). The recipe
+currently points to an earlier commit, and this repository has no release tags,
+so those steps remain outstanding. Run `fdroid lint` and `fdroid build` on the
+recipe, or use the F-Droid CI pipeline, before proposing it.
+
+F-Droid normally signs its builds with its own key. Installing an F-Droid build
+alongside an APK signed with a different key may require uninstalling the
+existing app first. Reproducible-build verification is needed to distribute an
+APK signed with the developer's key through the official repository.
+
 ## Licensing
 
 OpenGo and GNU Go are distributed under GNU GPL version 3 or later; the

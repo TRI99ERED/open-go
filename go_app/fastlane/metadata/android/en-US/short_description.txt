@@ -1,0 +1,1 @@
+Play Go offline against GNU Go or another player on your device.

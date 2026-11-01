@@ -1,0 +1,12 @@
+<p>Play Go offline with GNU Go or another person on the same device.</p>
+
+<ul>
+  <li>Play on 9x9, 13x13, or 19x19 boards.</li>
+  <li>Solve Go problems and import SGF problem collections.</li>
+  <li>Review SGF games, navigate variations, and read comments.</li>
+  <li>Record games and import or export SGF files.</li>
+</ul>
+
+<p>No internet connection is needed. The bundled Go Game Guru problems are
+licensed under CC BY-NC-SA 4.0; see the third-party notices for attribution
+and license details.</p>

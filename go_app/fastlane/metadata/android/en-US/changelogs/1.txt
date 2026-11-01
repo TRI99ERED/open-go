@@ -1,0 +1,1 @@
+First release: play Go offline, solve problems, review SGF games, and record games.
