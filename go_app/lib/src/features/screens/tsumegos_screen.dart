@@ -74,7 +74,6 @@ class _TsumegosScreenState extends State<TsumegosScreen> {
             listener: (context, previous, current) {},
             builder: (context, current) {
               final tsumegos = context.appState.tsumegos;
-
               return LayoutBuilder(
                 builder: (context, constraints) {
                   final crossAxisCount = constraints.maxWidth < 600
@@ -82,7 +81,6 @@ class _TsumegosScreenState extends State<TsumegosScreen> {
                       : constraints.maxWidth < 1000
                       ? 3
                       : 5;
-
                   return GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
