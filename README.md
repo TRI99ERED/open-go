@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="go_app/fastlane/metadata/android/en-US/images/icon.png" width="160" alt="OpenGo app icon">
+  <img src="fastlane/metadata/android/en-US/images/icon.png" width="160" alt="OpenGo app icon">
 </p>
 
 # OpenGo Flutter app
@@ -17,8 +17,8 @@ connection.
 
 | Home | Game | Tsumego |
 |:---:|:---:|:---:|
-| <img src="go_app/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="180" alt="OpenGo home screen"> | <img src="go_app/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="180" alt="Go game in progress"> | <img src="go_app/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="180" alt="Tsumego problem list"> |
-| <strong>SGF review</strong><br><img src="go_app/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="180" alt="Reviewing AlphaGo versus Fan Hui with move commentary"> | <strong>Settings</strong><br><img src="go_app/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="180" alt="OpenGo settings"> | <strong>Solve a problem</strong><br><img src="go_app/fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="180" alt="Solving a Go problem"> |
+| <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="180" alt="OpenGo home screen"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="180" alt="Go game in progress"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="180" alt="Tsumego problem list"> |
+| <strong>SGF review</strong><br><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="180" alt="Reviewing AlphaGo versus Fan Hui with move commentary"> | <strong>Settings</strong><br><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="180" alt="OpenGo settings"> | <strong>Solve a problem</strong><br><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="180" alt="Solving a Go problem"> |
 
 ## Features
 

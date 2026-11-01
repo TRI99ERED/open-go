@@ -1,0 +1,1 @@
+Improve F-Droid build verification and store metadata.

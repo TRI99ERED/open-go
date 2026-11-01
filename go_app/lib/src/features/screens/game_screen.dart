@@ -454,7 +454,7 @@ class _GameScreenState extends State<GameScreen> {
       'GM': ['1'],
       'FF': ['4'],
       'CA': ['UTF-8'],
-      'AP': ['OpenGo:0.1.0'],
+      'AP': ['OpenGo:0.1.1'],
       'SZ': ['${_boardSize.value}'],
       'DT': [DateTime.now().toIso8601String().substring(0, 10)],
       'KM': ['7.5'],

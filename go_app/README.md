@@ -89,18 +89,18 @@ permission from the rights holders.
 The F-Droid source-build recipe and `NonFreeAssets` disclosure are in
 [`../metadata/com.tri99er.opengo.yml`](../metadata/com.tri99er.opengo.yml).
 The localized listing text, release notes, app icon, and phone screenshots are in
-[`fastlane/metadata/android`](fastlane/metadata/android). Keep the attribution
+[`../fastlane/metadata/android`](../fastlane/metadata/android). Keep the attribution
 and license information in `licenses/THIRD_PARTY_NOTICES.md` with distributed
 builds.
 
 To propose inclusion in the official F-Droid repository, first commit the
 listing files to this repository and tag the corresponding app release (for
-example, `v0.1.0`). Push both the commit and tag. Update the `commit` in the
+example, `v0.1.1`). Push both the commit and tag. Update the `commit` in the
 build recipe to that release commit, then submit the recipe as
 `metadata/com.tri99er.opengo.yml` in a [merge request to
 fdroiddata](https://gitlab.com/fdroid/fdroiddata/-/merge_requests). The recipe
-targets release tag `v0.1.0` at commit
-`880c69d163e5708202cf1908785f59d596197e84`. Run `fdroid lint` and
+targets release tag `v0.1.1` at commit
+`<release-commit>`. Run `fdroid lint` and
 `fdroid build` on the recipe, or use the F-Droid CI pipeline, before proposing
 it.
 

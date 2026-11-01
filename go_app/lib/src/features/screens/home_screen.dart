@@ -34,7 +34,7 @@ class HomeScreen extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              AppListTitle(title: '${context.l10n.openGo} v0.1.0'),
+              AppListTitle(title: '${context.l10n.openGo} v0.1.1'),
               SizedBox(height: spacing8),
               AppListItem(
                 title: context.l10n.play,
