@@ -1,11 +1,19 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gnugo_ffi/gnugo_ffi.dart';
 import 'package:opengo/l10n/app_localizations.dart';
+import 'package:opengo/src/core/game/sgf.dart';
+import 'package:opengo/src/features/app/app_controller/app_controller.dart';
+import 'package:opengo/src/features/app/app_scope.dart';
 import 'package:opengo/src/features/screens/game_screen.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/widgets/common/app_button.dart';
 import 'package:opengo/src/widgets/common/app_dropdown.dart';
+import 'package:opengo/src/widgets/common/app_text_area.dart';
 import 'package:opengo/src/widgets/common/app_text_field.dart';
 import 'package:opengo/src/widgets/go_board.dart';
 
@@ -148,6 +156,123 @@ void main() {
     await tester.tap(find.text('Stop marking'));
     await _tapBoardPoint(tester, row: 4, column: 6);
     expect(commands, contains('play black G5'));
+  });
+
+  testWidgets('stores annotations per move and restores them on undo', (
+    tester,
+  ) async {
+    final originalFilePicker = FilePickerPlatform.instance;
+    final filePicker = _MemoryFilePicker();
+    FilePickerPlatform.instance = filePicker;
+    addTearDown(() => FilePickerPlatform.instance = originalFilePicker);
+    final appController = AppController();
+    final themeMode = ValueNotifier(ThemeMode.system);
+    final locale = ValueNotifier<Locale?>(null);
+    final fullscreenMode = ValueNotifier(false);
+    addTearDown(appController.dispose);
+    addTearDown(themeMode.dispose);
+    addTearDown(locale.dispose);
+    addTearDown(fullscreenMode.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: ThemeData(extensions: const [AppTheme()]),
+        home: AppScope(
+          appController: appController,
+          themeMode: themeMode,
+          locale: locale,
+          fullscreenMode: fullscreenMode,
+          onFullscreenModeChanged: (value) async {
+            fullscreenMode.value = value;
+          },
+          child: const GameScreen(
+            autoStart: false,
+            initialMode: GameMode.passAndPlay,
+            sendCommand: _noEngineCommand,
+          ),
+        ),
+      ),
+    );
+
+    await _tapBoardPoint(tester, row: 4, column: 4);
+    await tester.ensureVisible(find.text('Game annotations'));
+    await tester.tap(find.text('Game annotations'));
+    await tester.pumpAndSettle();
+
+    final commentField = find.descendant(
+      of: find.byType(AppTextArea),
+      matching: find.byType(TextFormField),
+    );
+    final markerField = find.descendant(
+      of: find.ancestor(
+        of: find.text('Board label'),
+        matching: find.byType(AppTextField),
+      ),
+      matching: find.byType(TextFormField),
+    );
+    await tester.enterText(commentField, 'First move comment');
+    await tester.enterText(markerField, 'A');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Apply label'));
+    await tester.tap(find.text('Apply label'));
+    await tester.pumpAndSettle();
+    await _tapBoardPoint(tester, row: 2, column: 2);
+    await tester.ensureVisible(find.text('Pass'));
+    await tester.tap(find.text('Pass'));
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<GoBoard>(find.byType(GoBoard)).labels, isEmpty);
+    expect(tester.widget<TextFormField>(commentField).controller!.text, '');
+    expect(tester.widget<TextFormField>(markerField).controller!.text, '');
+    expect(find.text('Stop marking'), findsNothing);
+    expect(
+      tester
+          .widget<AppButtonSecondary>(
+            find.widgetWithText(AppButtonSecondary, 'Apply label'),
+          )
+          .onPressed,
+      isNull,
+    );
+
+    await tester.enterText(commentField, 'Second move comment');
+    await tester.enterText(markerField, 'B');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Apply label'));
+    await tester.tap(find.text('Apply label'));
+    await tester.pumpAndSettle();
+    await _tapBoardPoint(tester, row: 6, column: 6);
+
+    await tester.ensureVisible(find.text('Game record'));
+    await tester.tap(find.text('Game record'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Export SGF'));
+    await tester.tap(find.text('Export SGF'));
+    await tester.pumpAndSettle();
+
+    final root = SgfCollection.parse(filePicker.savedSgf!).games.single;
+    expect(root.firstValue('C'), isNull);
+    expect(root.values('LB'), isEmpty);
+    final firstMove = root.children.single;
+    expect(firstMove.firstValue('B'), 'ee');
+    expect(firstMove.values('C'), ['First move comment']);
+    expect(firstMove.values('LB'), ['cc:A']);
+    final secondMove = firstMove.children.single;
+    expect(secondMove.firstValue('W'), '');
+    expect(secondMove.values('C'), ['Second move comment']);
+    expect(secondMove.values('LB'), ['gg:B']);
+
+    await tester.ensureVisible(find.text('Undo'));
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<TextFormField>(commentField).controller!.text,
+      'First move comment',
+    );
+    expect(tester.widget<GoBoard>(find.byType(GoBoard)).labels, {20: 'A'});
+    expect(find.text('Stop marking'), findsNothing);
   });
 
   testWidgets('validates board labels as uppercase letters or integers', (
@@ -373,3 +498,25 @@ Future<void> _tapBoardPoint(
   );
   await tester.pumpAndSettle();
 }
+
+class _MemoryFilePicker extends FilePickerPlatform {
+  String? savedSgf;
+
+  @override
+  Future<Uri?> saveFile({
+    required String fileName,
+    required Uint8List bytes,
+    required String mimeType,
+    String? dialogTitle,
+    String? initialDirectory,
+    Function(FilePickerStatus)? onFileSaving,
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
+  }) async {
+    savedSgf = utf8.decode(bytes);
+    return Uri.parse('file:///test.sgf');
+  }
+}
+
+Future<String> _noEngineCommand(String command) async => '';

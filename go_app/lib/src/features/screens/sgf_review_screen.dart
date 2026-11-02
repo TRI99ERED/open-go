@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:opengo/src/core/game/go_position.dart';
 import 'package:opengo/src/core/localization/localization.dart';
 import 'package:opengo/src/core/game/sgf.dart';
+import 'package:opengo/src/features/app/app_scope.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/features/themes/styles.dart';
 import 'package:opengo/src/widgets/common/app_badge.dart';
@@ -60,19 +59,15 @@ class _SgfReviewScreenState extends State<SgfReviewScreen> {
 
   Future<void> _openSgf() async {
     try {
-      final file = await FilePicker.pickFile(
+      final imported = await context.appController.importSgf(
         dialogTitle: context.l10n.openSgfGameRecord,
-        type: FileType.custom,
-        allowedExtensions: const ['sgf'],
       );
-      if (file == null) return;
-      final source = utf8.decode(await file.readAsBytes());
-      final collection = SgfCollection.parse(source);
+      if (imported == null) return;
 
-      _collection.value = collection;
+      _collection.value = imported.collection;
       _gameIndex.value = 0;
       _path.value = [];
-      _sourceName.value = file.name;
+      _sourceName.value = imported.fileName;
       _error.value = null;
     } catch (error) {
       if (mounted) {

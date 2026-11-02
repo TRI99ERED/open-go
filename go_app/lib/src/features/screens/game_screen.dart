@@ -1,13 +1,10 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gnugo_ffi/gnugo_ffi.dart';
 import 'package:opengo/l10n/app_localizations.dart';
 import 'package:opengo/src/core/game/go_position.dart';
 import 'package:opengo/src/core/game/sgf.dart';
 import 'package:opengo/src/core/localization/localization.dart';
+import 'package:opengo/src/features/app/app_scope.dart';
 import 'package:opengo/src/features/themes/app_theme.dart';
 import 'package:opengo/src/features/themes/styles.dart';
 import 'package:opengo/src/widgets/common/app_accordion.dart';
@@ -131,10 +128,7 @@ class _GameScreenState extends State<GameScreen> {
       _board.value = List<int>.filled(_boardSize.value * _boardSize.value, 0);
       _history.value.clear();
       _recordedMoves.clear();
-      _gameComment.clear();
-      _markerLabel.clear();
-      _labels.value = {};
-      _markingEnabled.value = false;
+      _clearAnnotationInputs();
       _gameRoot = _createSgfRoot();
       _toMove.value = 1;
       _lastMove.value = null;
@@ -269,6 +263,7 @@ class _GameScreenState extends State<GameScreen> {
     int? point,
     List<int> boardAfterMove,
   ) async {
+    _saveCurrentAnnotations();
     _history.value.add(_snapshot());
     final moveNode = SgfNode(
       properties: {
@@ -282,6 +277,7 @@ class _GameScreenState extends State<GameScreen> {
     final parent = _recordedMoves.isEmpty ? _gameRoot : _recordedMoves.last;
     parent.children.add(moveNode);
     _recordedMoves.add(moveNode);
+    _clearAnnotationInputs();
     _board.value = boardAfterMove;
     if (point != null) {
       _lastMove.value = point;
@@ -300,6 +296,59 @@ class _GameScreenState extends State<GameScreen> {
           ? context.l10n.blackToPlay
           : context.l10n.whiteToPlay;
     }
+  }
+
+  SgfNode get _currentSgfNode =>
+      _recordedMoves.isEmpty ? _gameRoot : _recordedMoves.last;
+
+  void _saveCurrentAnnotations() {
+    final comment = _gameComment.text.trim();
+    final position = GoPosition.empty(_boardSize.value);
+    final labels = [
+      for (final entry in _labels.value.entries)
+        '${position.sgfCoordinate(entry.key)}:${entry.value}',
+    ];
+    final node = _currentSgfNode;
+
+    if (comment.isEmpty) {
+      node.properties.remove('C');
+    } else {
+      node.setValue('C', comment);
+    }
+    if (labels.isEmpty) {
+      node.properties.remove('LB');
+    } else {
+      node.properties['LB'] = labels;
+    }
+  }
+
+  void _clearAnnotationInputs() {
+    _gameComment.clear();
+    _markerLabel.clear();
+    _labels.value = {};
+    _markingEnabled.value = false;
+  }
+
+  void _restoreCurrentAnnotations() {
+    final node = _currentSgfNode;
+    final position = GoPosition.empty(_boardSize.value);
+    final labels = <int, String>{};
+    for (final value in node.values('LB')) {
+      final separator = value.indexOf(':');
+      if (separator <= 0 || separator == value.length - 1) {
+        throw FormatException('Invalid SGF label: $value');
+      }
+      final point = position.pointFromSgf(value.substring(0, separator));
+      if (point == null) {
+        throw FormatException('Invalid SGF label coordinate: $value');
+      }
+      labels[point] = value.substring(separator + 1);
+    }
+
+    _gameComment.text = node.firstValue('C') ?? '';
+    _markerLabel.clear();
+    _labels.value = labels;
+    _markingEnabled.value = false;
   }
 
   void _markAt(int point) {
@@ -376,6 +425,7 @@ class _GameScreenState extends State<GameScreen> {
           ? _gameRoot
           : _recordedMoves.last;
       recordParent.children.clear();
+      _restoreCurrentAnnotations();
       _board.value = List<int>.of(snapshot.board);
       _toMove.value = snapshot.toMove;
       _lastMove.value = snapshot.lastMove;
@@ -474,34 +524,16 @@ class _GameScreenState extends State<GameScreen> {
         ..setValue('SZ', '${_boardSize.value}')
         ..setValue('PB', _blackPlayer.text.trim())
         ..setValue('PW', _whitePlayer.text.trim());
-      final comment = _gameComment.text.trim();
-      if (comment.isNotEmpty) {
-        _gameRoot.setValue('C', comment);
-      } else {
-        _gameRoot.properties.remove('C');
-      }
-      final annotationNode = _recordedMoves.isEmpty
-          ? _gameRoot
-          : _recordedMoves.last;
-      if (_labels.value.isNotEmpty) {
-        annotationNode.properties['LB'] = [
-          for (final entry in _labels.value.entries)
-            '${GoPosition.empty(_boardSize.value).sgfCoordinate(entry.key)}:${entry.value}',
-        ];
-      } else {
-        annotationNode.properties.remove('LB');
-      }
+      _saveCurrentAnnotations();
       if (_gameName.text.trim().isNotEmpty) {
         _gameRoot.setValue('GN', _gameName.text.trim());
       } else {
         _gameRoot.properties.remove('GN');
       }
 
-      final data = SgfCollection([_gameRoot]).write();
-      final uri = await FilePicker.saveFile(
+      final uri = await context.appController.exportSgf(
+        game: _gameRoot,
         fileName: '${_safeFilename(_gameName.text)}.sgf',
-        bytes: Uint8List.fromList(utf8.encode(data)),
-        mimeType: 'application/x-go-sgf',
         dialogTitle: context.l10n.exportSgfGame,
       );
       if (!mounted) return;
@@ -581,253 +613,258 @@ class _GameScreenState extends State<GameScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                    SizedBox(
-                      height: 80,
-                      child: Column(
-                        children: [
-                          Text(
-                            status,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: h1Size,
-                              fontWeight: h1Weight,
-                              color: Theme.of(context)
-                                  .extension<AppTheme>()!
-                                  .foregroundStrongestColor,
-                            ),
-                          ),
-                          if (busy) ...[
-                            const SizedBox(height: spacing8),
-                            LinearProgressIndicator(
-                              color: Theme.of(context)
-                                  .extension<AppTheme>()!
-                                  .foregroundStrongestColor,
-                              backgroundColor: Theme.of(context)
-                                  .extension<AppTheme>()!
-                                  .backgroundStrongColor,
-                            ),
-                          ],
-                          if (error != null) ...[
-                            const SizedBox(height: spacing8),
-                            SelectableText(
-                              error,
+                      SizedBox(
+                        height: 80,
+                        child: Column(
+                          children: [
+                            Text(
+                              status,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: bSSize,
-                                fontWeight: bSWeight,
+                                fontSize: h1Size,
+                                fontWeight: h1Weight,
                                 color: Theme.of(context)
                                     .extension<AppTheme>()!
-                                    .errorDarkColor,
+                                    .foregroundStrongestColor,
                               ),
                             ),
+                            if (busy) ...[
+                              const SizedBox(height: spacing8),
+                              LinearProgressIndicator(
+                                color: Theme.of(context)
+                                    .extension<AppTheme>()!
+                                    .foregroundStrongestColor,
+                                backgroundColor: Theme.of(context)
+                                    .extension<AppTheme>()!
+                                    .backgroundStrongColor,
+                              ),
+                            ],
+                            if (error != null) ...[
+                              const SizedBox(height: spacing8),
+                              SelectableText(
+                                error,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: bSSize,
+                                  fontWeight: bSWeight,
+                                  color: Theme.of(context)
+                                      .extension<AppTheme>()!
+                                      .errorDarkColor,
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: spacing20),
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: goBoardMaxWidth,
                         ),
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: LayoutBuilder(
-                            builder: (context, constraints) => GoBoard(
-                              boardSize: boardSize,
-                              stones: board,
-                              lastMove: lastMove,
-                              labels: _labels.value,
-                              onPlay: busy
-                                  ? null
-                                  : markingEnabled
-                                  ? _markAt
-                                  : canPlay
-                                  ? _playAt
-                                  : null,
+                      ),
+                      const SizedBox(height: spacing20),
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: goBoardMaxWidth,
+                          ),
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: LayoutBuilder(
+                              builder: (context, constraints) => GoBoard(
+                                boardSize: boardSize,
+                                stones: board,
+                                lastMove: lastMove,
+                                labels: _labels.value,
+                                onPlay: busy
+                                    ? null
+                                    : markingEnabled
+                                    ? _markAt
+                                    : canPlay
+                                    ? _playAt
+                                    : null,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: spacing20),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 12,
-                      runSpacing: 8,
-                      children: [
-                        AppButtonPrimary(
-                          onPressed: canPlay ? _pass : null,
-                          leftIcon: Icons.skip_next,
-                          text: context.l10n.pass,
-                        ),
-                        AppButtonSecondary(
-                          onPressed: !busy && history.isNotEmpty ? _undo : null,
-                          leftIcon: Icons.undo,
-                          text: context.l10n.undo,
-                        ),
-                        AppButtonSecondary(
-                          onPressed: busy ? null : _startNewGame,
-                          leftIcon: Icons.refresh,
-                          text: context.l10n.newGame,
-                        ),
-                      ],
-                    ),
-                    AppAccordion(
-                      title: context.l10n.setup,
-                      startOpen: true,
-                      children: [
-                        AppLabeledControl(
-                          label: context.l10n.board,
-                          value: boardSize,
-                          items: _boardSizes,
-                          itemLabel: (size) => '$size×$size',
-                          onSelected: busy
-                              ? null
-                              : (size) {
-                                  if (size == null) {
-                                    return;
-                                  }
-                                  _boardSize.value = size;
-                                  _startNewGame();
-                                },
-                        ),
-                        AppLabeledControl(
-                          label: context.l10n.gameMode,
-                          value: gameMode.index,
-                          items: GameMode.values.map((v) => v.index).toList(),
-                          itemLabel: (mode) => switch (GameMode.values[mode]) {
-                            GameMode.vsGnuGo => context.l10n.vsGnuGo,
-                            GameMode.passAndPlay => context.l10n.passAndPlay,
-                          },
-                          onSelected: busy
-                              ? null
-                              : (mode) {
-                                  if (mode == null) {
-                                    return;
-                                  }
-                                  _mode.value = GameMode.values[mode];
-
-                                  _startNewGame();
-                                },
-                        ),
-                        if (gameMode == GameMode.vsGnuGo)
+                      const SizedBox(height: spacing20),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 12,
+                        runSpacing: 8,
+                        children: [
+                          AppButtonPrimary(
+                            onPressed: canPlay ? _pass : null,
+                            leftIcon: Icons.skip_next,
+                            text: context.l10n.pass,
+                          ),
+                          AppButtonSecondary(
+                            onPressed: !busy && history.isNotEmpty
+                                ? _undo
+                                : null,
+                            leftIcon: Icons.undo,
+                            text: context.l10n.undo,
+                          ),
+                          AppButtonSecondary(
+                            onPressed: busy ? null : _startNewGame,
+                            leftIcon: Icons.refresh,
+                            text: context.l10n.newGame,
+                          ),
+                        ],
+                      ),
+                      AppAccordion(
+                        title: context.l10n.setup,
+                        startOpen: true,
+                        children: [
                           AppLabeledControl(
-                            label: context.l10n.youPlay,
-                            value: humanColor,
-                            items: const [1, 2],
-                            itemLabel: (color) =>
-                                _colorName(color, context.l10n),
+                            label: context.l10n.board,
+                            value: boardSize,
+                            items: _boardSizes,
+                            itemLabel: (size) => '$size×$size',
                             onSelected: busy
                                 ? null
-                                : (color) {
-                                    if (color == null) {
+                                : (size) {
+                                    if (size == null) {
                                       return;
                                     }
-                                    _humanColor.value = color;
+                                    _boardSize.value = size;
+                                    _startNewGame();
+                                  },
+                          ),
+                          AppLabeledControl(
+                            label: context.l10n.gameMode,
+                            value: gameMode.index,
+                            items: GameMode.values.map((v) => v.index).toList(),
+                            itemLabel: (mode) =>
+                                switch (GameMode.values[mode]) {
+                                  GameMode.vsGnuGo => context.l10n.vsGnuGo,
+                                  GameMode.passAndPlay =>
+                                    context.l10n.passAndPlay,
+                                },
+                            onSelected: busy
+                                ? null
+                                : (mode) {
+                                    if (mode == null) {
+                                      return;
+                                    }
+                                    _mode.value = GameMode.values[mode];
 
                                     _startNewGame();
                                   },
                           ),
-                      ],
-                    ),
-                    AppAccordion(
-                      title: context.l10n.gameAnnotations,
-                      children: [
-                        AppTextArea(
-                          controller: _gameComment,
-                          title: context.l10n.gameComment,
-                          maxLines: 4,
-                        ),
-                        const SizedBox(height: spacing12),
-                        SizedBox(
-                          width: 220,
-                          child: AppTextField(
-                            controller: _markerLabel,
-                            title: context.l10n.markerLabel,
-                            validator: (value) => _isValidMarkerLabel(value)
-                                ? null
-                                : context.l10n.invalidMarkerLabel,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
+                          if (gameMode == GameMode.vsGnuGo)
+                            AppLabeledControl(
+                              label: context.l10n.youPlay,
+                              value: humanColor,
+                              items: const [1, 2],
+                              itemLabel: (color) =>
+                                  _colorName(color, context.l10n),
+                              onSelected: busy
+                                  ? null
+                                  : (color) {
+                                      if (color == null) {
+                                        return;
+                                      }
+                                      _humanColor.value = color;
+
+                                      _startNewGame();
+                                    },
+                            ),
+                        ],
+                      ),
+                      AppAccordion(
+                        title: context.l10n.gameAnnotations,
+                        children: [
+                          AppTextArea(
+                            controller: _gameComment,
+                            title: context.l10n.gameComment,
+                            maxLines: 4,
                           ),
-                        ),
-                        const SizedBox(height: spacing8),
-                        AppAccordionText(context.l10n.markerInstructions),
-                        const SizedBox(height: spacing8),
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 12,
-                          runSpacing: 8,
-                          children: [
-                            if (markingEnabled)
-                              AppButtonPrimary(
-                                onPressed: () => _markingEnabled.value = false,
-                                text: context.l10n.disableMarkers,
-                              )
-                            else
-                              AppButtonSecondary(
-                                onPressed:
-                                    !_isValidMarkerLabel(_markerLabel.text)
-                                    ? null
-                                    : () => _markingEnabled.value = true,
-                                text: context.l10n.enableMarkers,
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: spacing12),
-                      ],
-                    ),
-                    AppAccordion(
-                      title: context.l10n.gameRecord,
-                      children: [
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 16,
-                          runSpacing: 12,
-                          children: [
-                            SizedBox(
-                              width: 180,
-                              child: AppTextField(
-                                controller: _blackPlayer,
-                                title: context.l10n.blackPlayer,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 180,
-                              child: AppTextField(
-                                controller: _whitePlayer,
-                                title: context.l10n.whitePlayer,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 180,
-                              child: AppTextField(
-                                controller: _gameName,
-                                title: context.l10n.gameNameOptional,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: spacing12),
-                        AppButtonSecondary(
-                          onPressed: busy ? null : _exportSgf,
-                          leftIcon: Icons.save_alt,
-                          text: busy
-                              ? context.l10n.exporting
-                              : context.l10n.exportSgf,
-                        ),
-                        if (recordMessage != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: spacing8),
-                            child: Text(
-                              recordMessage,
-                              textAlign: TextAlign.center,
+                          const SizedBox(height: spacing12),
+                          SizedBox(
+                            width: 220,
+                            child: AppTextField(
+                              controller: _markerLabel,
+                              title: context.l10n.markerLabel,
+                              validator: (value) => _isValidMarkerLabel(value)
+                                  ? null
+                                  : context.l10n.invalidMarkerLabel,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
                             ),
                           ),
-                        const SizedBox(height: spacing12),
-                      ],
-                    ),
+                          const SizedBox(height: spacing8),
+                          AppAccordionText(context.l10n.markerInstructions),
+                          const SizedBox(height: spacing8),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 12,
+                            runSpacing: 8,
+                            children: [
+                              if (markingEnabled)
+                                AppButtonPrimary(
+                                  onPressed: () =>
+                                      _markingEnabled.value = false,
+                                  text: context.l10n.disableMarkers,
+                                )
+                              else
+                                AppButtonSecondary(
+                                  onPressed:
+                                      !_isValidMarkerLabel(_markerLabel.text)
+                                      ? null
+                                      : () => _markingEnabled.value = true,
+                                  text: context.l10n.enableMarkers,
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: spacing12),
+                        ],
+                      ),
+                      AppAccordion(
+                        title: context.l10n.gameRecord,
+                        children: [
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 16,
+                            runSpacing: 12,
+                            children: [
+                              SizedBox(
+                                width: 180,
+                                child: AppTextField(
+                                  controller: _blackPlayer,
+                                  title: context.l10n.blackPlayer,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 180,
+                                child: AppTextField(
+                                  controller: _whitePlayer,
+                                  title: context.l10n.whitePlayer,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 180,
+                                child: AppTextField(
+                                  controller: _gameName,
+                                  title: context.l10n.gameNameOptional,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: spacing12),
+                          AppButtonSecondary(
+                            onPressed: busy ? null : _exportSgf,
+                            leftIcon: Icons.save_alt,
+                            text: busy
+                                ? context.l10n.exporting
+                                : context.l10n.exportSgf,
+                          ),
+                          if (recordMessage != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: spacing8),
+                              child: Text(
+                                recordMessage,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          const SizedBox(height: spacing12),
+                        ],
+                      ),
                     ],
                   ),
                 ),

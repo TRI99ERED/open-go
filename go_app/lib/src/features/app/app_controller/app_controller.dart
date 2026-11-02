@@ -98,4 +98,99 @@ final class AppController extends BaseController<AppState> {
           );
         }
       });
+
+  Future<({SgfCollection collection, String fileName})?> importSgf({
+    required String dialogTitle,
+  }) async => await serialExecutor.synchronized(() async {
+    try {
+      setState(
+        AppState.processing(
+          message: 'Importing SGF',
+          user: state.user,
+          tsumegos: state.tsumegos,
+        ),
+      );
+      final file = await FilePicker.pickFile(
+        dialogTitle: dialogTitle,
+        type: FileType.custom,
+        allowedExtensions: const ['sgf'],
+      );
+      if (file == null) {
+        setState(
+          AppState.idle(
+            message: 'SGF import cancelled',
+            user: state.user,
+            tsumegos: state.tsumegos,
+          ),
+        );
+        return null;
+      }
+
+      final source = utf8.decode(await file.readAsBytes());
+      final collection = SgfCollection.parse(source);
+      setState(
+        AppState.idle(
+          message: 'Successfully imported SGF',
+          user: state.user,
+          tsumegos: state.tsumegos,
+        ),
+      );
+      return (collection: collection, fileName: file.name);
+    } catch (error, stackTrace) {
+      setState(
+        AppState.failed(
+          message: 'Could not import SGF',
+          user: state.user,
+          tsumegos: state.tsumegos,
+          error: error,
+          stackTrace: stackTrace,
+        ),
+      );
+      Error.throwWithStackTrace(error, stackTrace);
+    }
+  });
+
+  Future<Uri?> exportSgf({
+    required SgfNode game,
+    required String fileName,
+    required String dialogTitle,
+  }) async => await serialExecutor.synchronized(() async {
+    try {
+      setState(
+        AppState.processing(
+          message: 'Exporting SGF',
+          user: state.user,
+          tsumegos: state.tsumegos,
+        ),
+      );
+      final data = SgfCollection([game]).write();
+      final uri = await FilePicker.saveFile(
+        fileName: fileName,
+        bytes: Uint8List.fromList(utf8.encode(data)),
+        mimeType: 'application/x-go-sgf',
+        dialogTitle: dialogTitle,
+      );
+      setState(
+        AppState.idle(
+          message: uri == null
+              ? 'SGF export cancelled'
+              : 'Successfully exported SGF',
+          user: state.user,
+          tsumegos: state.tsumegos,
+        ),
+      );
+      return uri;
+    } catch (error, stackTrace) {
+      setState(
+        AppState.failed(
+          message: 'Could not export SGF',
+          user: state.user,
+          tsumegos: state.tsumegos,
+          error: error,
+          stackTrace: stackTrace,
+        ),
+      );
+      Error.throwWithStackTrace(error, stackTrace);
+    }
+  });
 }
