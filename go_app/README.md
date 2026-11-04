@@ -100,7 +100,7 @@ build recipe to that release commit, then submit the recipe as
 `metadata/com.tri99er.opengo.yml` in a [merge request to
 fdroiddata](https://gitlab.com/fdroid/fdroiddata/-/merge_requests). The recipe
 targets release tag `v0.2.0` at commit
-`<release-commit>`. Run `fdroid lint` and
+`e3434f105e9b33481a645ef4e10af4bcfd09b636`. Run `fdroid lint` and
 `fdroid build` on the recipe, or use the F-Droid CI pipeline, before proposing
 it.
 

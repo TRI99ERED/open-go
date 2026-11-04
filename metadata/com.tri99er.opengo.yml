@@ -16,7 +16,7 @@ Repo: https://github.com/TRI99ERED/open-go
 Builds:
   - versionName: 0.2.0
     versionCode: 3
-    commit: 49fb2725f2744f6bf79a4079fe2b91fa26f030a2
+    commit: e3434f105e9b33481a645ef4e10af4bcfd09b636
     subdir: go_app
     output: build/app/outputs/flutter-apk/app-release.apk
     srclibs:
