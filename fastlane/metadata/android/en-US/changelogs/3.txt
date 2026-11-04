@@ -1,0 +1,2 @@
+Import and export Go games in SGF format.
+Improve edge-to-edge layouts and fullscreen mode.

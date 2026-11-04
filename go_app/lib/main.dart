@@ -19,6 +19,7 @@ void main() {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
       SystemChrome.setPreferredOrientations([.portraitUp]);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
       runApp(const App());
     },
@@ -128,31 +129,52 @@ class _AppState extends State<App> {
             themeMode: _themeMode.value,
             routerDelegate: _routerDelegate,
             routeInformationParser: _routeParser,
-            builder: (context, child) => ValueListenableBuilder<bool>(
-              valueListenable: _fullscreenMode,
-              builder: (context, isFullscreen, child) {
-                final mediaQuery = MediaQuery.of(context);
-                final fullscreenMediaQuery = isFullscreen
-                    ? mediaQuery.copyWith(
-                        padding: mediaQuery.padding.copyWith(top: 0),
-                        viewPadding: mediaQuery.viewPadding.copyWith(top: 0),
-                      )
-                    : mediaQuery;
+            builder: (context, child) {
+              final overlayStyle = Theme.of(context).brightness == Brightness.dark
+                  ? const SystemUiOverlayStyle(
+                      statusBarColor: Colors.transparent,
+                      statusBarIconBrightness: Brightness.light,
+                      systemNavigationBarColor: Colors.transparent,
+                      systemNavigationBarIconBrightness: Brightness.light,
+                      systemNavigationBarDividerColor: Colors.transparent,
+                    )
+                  : const SystemUiOverlayStyle(
+                      statusBarColor: Colors.transparent,
+                      statusBarIconBrightness: Brightness.dark,
+                      systemNavigationBarColor: Colors.transparent,
+                      systemNavigationBarIconBrightness: Brightness.dark,
+                      systemNavigationBarDividerColor: Colors.transparent,
+                    );
 
-                return MediaQuery(
-                  data: fullscreenMediaQuery,
-                  child: AppScope(
-                    appController: _appController,
-                    themeMode: _themeMode,
-                    locale: _locale,
-                    fullscreenMode: _fullscreenMode,
-                    onFullscreenModeChanged: _setFullscreenMode,
-                    child: child ?? const SplashScreen(),
-                  ),
-                );
-              },
-              child: child ?? const SplashScreen(),
-            ),
+              return AnnotatedRegion<SystemUiOverlayStyle>(
+                value: overlayStyle,
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: _fullscreenMode,
+                  builder: (context, isFullscreen, child) {
+                    final mediaQuery = MediaQuery.of(context);
+                    final fullscreenMediaQuery = isFullscreen
+                        ? mediaQuery.copyWith(
+                            padding: mediaQuery.padding.copyWith(top: 0),
+                            viewPadding: mediaQuery.viewPadding.copyWith(top: 0),
+                          )
+                        : mediaQuery;
+
+                    return MediaQuery(
+                      data: fullscreenMediaQuery,
+                      child: AppScope(
+                        appController: _appController,
+                        themeMode: _themeMode,
+                        locale: _locale,
+                        fullscreenMode: _fullscreenMode,
+                        onFullscreenModeChanged: _setFullscreenMode,
+                        child: child ?? const SplashScreen(),
+                      ),
+                    );
+                  },
+                  child: child ?? const SplashScreen(),
+                ),
+              );
+            },
           ),
         );
       },
